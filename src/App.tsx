@@ -1,26 +1,53 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import './App.css'
 import { createInitialGameState } from './game/initGame';
-import { discardTile } from './game/discard';
-import { drawTile } from './game/draw';
-import Hand from './Hand';
-import { handlePeng } from './game/handlePeng';
-import { passResponse } from './game/passResponse';
 import type { Tile } from './types/tile';
-import { runAIAutoTurns } from './game/runAIAutoTurns';
+import type { GameState } from './game/gameState';
+import Hand from './Hand';
 import DiscardArea from './DiscardArea';
 
-
 function App() {
-  const [game, setGame] = useState(
-    createInitialGameState('room1', [
-      { id: 'p1', name: '你', hand: [], melds: [], discards: [], isReady: true, isOnline: true },
-      { id: 'p2', name: '爸', hand: [], melds: [], discards: [], isReady: true, isOnline: true },
-      // { id: 'p3', name: '妈', hand: [], melds: [], discards: [], isReady: true, isOnline: true },
-      // { id: 'p4', name: 'AI', hand: [], melds: [], discards: [], isReady: true, isOnline: true },
-    ])
-  );
+  const ws = useRef<WebSocket | null>(null);
+  const [game, setGame] = useState<GameState | null>(null);
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null);
+
+  useEffect(() => {
+    ws.current = new WebSocket('ws://localhost:8080');
+
+    ws.current.onopen = () => {
+      console.log('[Client] Connected to server');
+    };
+
+    ws.current.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      if (msg.type === 'sync') {
+        setGame(msg.game);
+      } else if (msg.type === 'error') {
+        alert(`Error: ${msg.message}`);
+      }
+    };
+
+    ws.current.onerror = (err) => {
+      console.error('[Client] WebSocket error:', err);
+      alert('连接服务器失败，请检查服务器是否运行');
+    };
+
+    ws.current.onclose = () => {
+      console.log('[Client] Disconnected from server');
+    };
+
+    return () => ws.current?.close();
+  }, []);
+
+  if (!game) {
+    return <div style={{ padding: 20 }}>连接中...</div>;
+  }
+
+  const sendAction = (action: string, payload: any = {}) => {
+    if (ws.current && ws.current.readyState === 1) {
+      ws.current.send(JSON.stringify({ action, ...payload }));
+    }
+  };
 
   const currentPlayer = game.players[game.currentPlayerIndex];
 
@@ -29,13 +56,8 @@ function App() {
   };
 
   const handleDrawTile = () => {
-    try {
-      const next = drawTile(game, currentPlayer.id);
-      setGame(next);
-      setSelectedTileId(null);
-    } catch (e) {
-      alert((e as Error).message);
-    }
+    sendAction('draw', { playerId: currentPlayer.id });
+    setSelectedTileId(null);
   };
 
   const handleDiscardTile = () => {
@@ -43,33 +65,16 @@ function App() {
       alert('请先选择一张牌');
       return;
     }
-    try {
-      let next = discardTile(game, currentPlayer.id, selectedTileId);
-      next = runAIAutoTurns(next);
-      setGame(next);
-      setSelectedTileId(null);
-      console.log('我的弃牌', game.players[0].discards);
-    } catch (e) {
-      alert((e as Error).message);
-    }
+    sendAction('discard', { playerId: currentPlayer.id, tileId: selectedTileId });
+    setSelectedTileId(null);
   };
 
   const handlePengClick = () => {
-    try {
-      const next = handlePeng(game, currentPlayer.id);
-      setGame(next);
-    } catch (e) {
-      alert((e as Error).message);
-    }
+    sendAction('peng', { playerId: currentPlayer.id });
   };
 
   const handlePassClick = () => {
-    try {
-      const next = passResponse(game, currentPlayer.id);
-      setGame(next);
-    } catch (e) {
-      alert((e as Error).message);
-    }
+    sendAction('pass', { playerId: currentPlayer.id });
   };
 
   const me = currentPlayer;
