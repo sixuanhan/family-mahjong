@@ -1,4 +1,4 @@
 export type TurnPhase =
-  | 'waiting_draw'
-  | 'waiting_discard'
-  | 'waiting_response';
+  | '等待摸牌'
+  | '等待出牌'
+  | '等待响应';

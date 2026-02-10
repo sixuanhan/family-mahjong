@@ -3,13 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --loader ts-node/esm index.ts"
+    "dev": "tsx index.ts"
   },
   "dependencies": {
     "ws": "^8.16.0"
-  },
-  "devDependencies": {
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
   }
 }

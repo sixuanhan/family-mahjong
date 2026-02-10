@@ -10,7 +10,7 @@ export function discardTile(
   playerId: string,
   tileId: string
 ): GameState {
-  if (state.turnPhase !== 'waiting_discard') {
+  if (state.turnPhase !== '等待出牌') {
     throw new Error('必须先摸牌才能出牌');
   }
 
@@ -43,7 +43,7 @@ export function discardTile(
     ...state,
     players,
     lastDiscard: { tile, playerId },
-    turnPhase: responders.length > 0 ? 'waiting_response' : 'waiting_draw',
+    turnPhase: responders.length > 0 ? '等待响应' : '等待摸牌',
     currentPlayerIndex:
       responders.length > 0
         ? state.currentPlayerIndex

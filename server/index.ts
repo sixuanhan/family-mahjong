@@ -8,77 +8,145 @@ import { passResponse } from '../src/game/passResponse.js';
 import type { GameState } from '../src/game/gameState.js';
 import { randomUUID } from 'crypto';
 
-const wss = new WebSocketServer({ port: 8080 });
+const wss = new WebSocketServer({ host: '0.0.0.0', port: 8080 });
 
 let game: GameState | null = null;
 const clients = new Map<WebSocket, string>();
 
 wss.on('connection', (ws) => {
+    if (game && game.players.length >= 4) {
+    console.log(
+      `[WS] Reject connection: room full (${game.players.length}/4)`
+    );
+
+    ws.send(
+      JSON.stringify({
+        type: 'error',
+        message: '房间已满（最多 4 人）',
+      })
+    );
+
+    ws.close();
+    return;
+  }
+
   const playerId = randomUUID();
   clients.set(ws, playerId);
-  console.log(`[WS] Player ${playerId} connected. Total: ${clients.size}`);
 
-  // 首次连接时初始化游戏（仅当有足够玩家时）
-  if (!game && clients.size === 1) {
-    game = createInitialGameState('room1', [
-      { id: 'p1', name: '你', hand: [], melds: [], discards: [], isReady: true, isOnline: true },
-      { id: 'p2', name: 'AI', hand: [], melds: [], discards: [], isReady: true, isOnline: true },
-    ]);
-    console.log('[Server] Game initialized');
+  if (!game) {
+    game = {
+      roomId: 'room1',
+      players: [],
+      wall: [],
+      currentPlayerIndex: 0,
+      turnPhase: '等待摸牌',
+      roomPhase: 'waiting_players',
+    };
   }
 
-  // 初始同步当前游戏状态
-  if (game) {
-    ws.send(JSON.stringify({ type: 'sync', game }));
-  }
+  ws.send(
+    JSON.stringify({
+      type: 'welcome',
+      playerId,
+      game,
+    })
+  );
 
-  ws.on('message', (raw) => {
+    ws.on('message', (raw) => {
     const msg = JSON.parse(raw.toString());
-    console.log(`[WS] ${playerId} action:`, msg.action);
-
     if (!game) return;
 
     try {
-      let newGame = game;
+        switch (msg.action) {
+        case 'join': {
+            if (game.players.find((p) => p.id === playerId)) return;
 
-      switch (msg.action) {
+            game.players.push({
+            id: playerId,
+            name: msg.name ?? `玩家${game.players.length + 1}`,
+            hand: [],
+            melds: [],
+            discards: [],
+            isReady: false,
+            isOnline: true,
+            });
+
+            console.log(
+            `[WS] Player ${playerId} connected, current players: ${game.players.length}`
+            );
+
+            if (game.players.length >= 2) {
+            game.roomPhase = 'waiting_ready';
+            }
+
+            broadcast(game);
+            break;
+        }
+
+        case 'ready': {
+            const player = game.players.find((p) => p.id === playerId);
+            if (!player) return;
+
+            player.isReady = true;
+
+            if (msg.name && typeof msg.name === 'string') {
+            player.name = msg.name;
+            } else if (!player.name) {
+            player.name = player.id.slice(0, 6);
+            }
+
+            const allReady =
+            game.players.length >= 2 &&
+            game.players.every((p) => p.isReady);
+
+            if (allReady) {
+            game = createInitialGameState(
+                game.roomId,
+                game.players.map((p) => ({
+                ...p,
+                hand: [],
+                melds: [],
+                discards: [],
+                isReady: true,
+                }))
+            );
+            }
+
+            broadcast(game);
+            break;
+        }
+
+        // ===== 游戏内动作（只在 playing 时允许） =====
         case 'draw':
-          newGame = drawTile(game, msg.playerId);
-          break;
-
         case 'discard':
-          newGame = discardTile(game, msg.playerId, msg.tileId);
-          break;
-
         case 'peng':
-          newGame = handlePeng(game, msg.playerId);
-          break;
+        case 'pass': {
+            if (game.roomPhase !== 'playing') return;
 
-        case 'pass':
-          newGame = passResponse(game, msg.playerId);
-          break;
+            let newGame = game;
+            if (msg.action === 'draw') {
+            newGame = drawTile(game, playerId);
+            }
+            if (msg.action === 'discard') {
+            newGame = discardTile(game, playerId, msg.tileId);
+            }
+            if (msg.action === 'peng') {
+            newGame = handlePeng(game, playerId);
+            }
+            if (msg.action === 'pass') {
+            newGame = passResponse(game, playerId);
+            }
 
-        default:
-          console.warn(`[Server] Unknown action: ${msg.action}`);
-          return;
-      }
-
-      game = newGame;
-      broadcast(game);
+            game = newGame;
+            broadcast(game);
+            break;
+        }
+        }
     } catch (err) {
-      console.error(`[Server] Error processing action:`, err);
-      ws.send(JSON.stringify({ type: 'error', message: (err as Error).message }));
+        ws.send(JSON.stringify({ type: 'error', message: String(err) }));
     }
-  });
+    });
 
-  ws.on('close', () => {
-    clients.delete(ws);
-    console.log(`[WS] Player ${playerId} disconnected. Total: ${clients.size}`);
-  });
-
-  ws.on('error', (err) => {
-    console.error(`[WS] Error for ${playerId}:`, err);
-  });
 });
 
 function broadcast(gameState: GameState) {

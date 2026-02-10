@@ -12,12 +12,12 @@ export function runAIAutoTurns(state: GameState): GameState {
     if (player.id === 'p1') break;
 
     // AI：摸牌
-    if (current.turnPhase === 'waiting_draw') {
+    if (current.turnPhase === '等待摸牌') {
       current = drawTile(current, player.id);
     }
 
     // AI：立刻打出刚摸到的牌
-    if (current.turnPhase === 'waiting_discard') {
+    if (current.turnPhase === '等待出牌') {
       const lastTile =
         current.players[current.currentPlayerIndex].hand[
           current.players[current.currentPlayerIndex].hand.length - 1

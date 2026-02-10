@@ -30,3 +30,17 @@ export interface GameState {
     >;
   };
 }
+
+export type RoomPhase =
+  | 'waiting_players'
+  | 'waiting_ready'
+  | 'playing';
+
+export interface GameState {
+  roomId: string;
+  players: Player[];
+  wall: Tile[];
+  currentPlayerIndex: number;
+  turnPhase: TurnPhase;
+  roomPhase: RoomPhase;
+}

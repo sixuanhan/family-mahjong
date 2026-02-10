@@ -11,7 +11,7 @@ export default function DiscardArea({ tiles }: { tiles: Tile[] }) {
       style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: 4,
+        gap: 0,
         maxWidth: 220,
       }}
     >

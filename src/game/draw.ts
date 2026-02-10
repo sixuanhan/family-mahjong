@@ -8,7 +8,7 @@ export function drawTile(
   state: GameState,
   playerId: string
 ): GameState {
-  if (state.turnPhase !== 'waiting_draw') {
+  if (state.turnPhase !== '等待摸牌') {
     throw new Error('当前不能摸牌');
   }
 
@@ -30,6 +30,6 @@ export function drawTile(
     ...state,
     wall: state.wall.slice(1),
     players,
-    turnPhase: 'waiting_discard',
+    turnPhase: '等待出牌',
   };
 }

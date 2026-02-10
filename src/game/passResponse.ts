@@ -4,7 +4,7 @@ export function passResponse(
   state: GameState,
   playerId: string
 ): GameState {
-  if (state.turnPhase !== 'waiting_response') {
+  if (state.turnPhase !== '等待响应') {
     throw new Error('当前不能选择过');
   }
 
@@ -36,7 +36,7 @@ export function passResponse(
   return {
     ...state,
     pendingResponses: undefined,
-    turnPhase: 'waiting_draw',
+    turnPhase: '等待摸牌',
     currentPlayerIndex:
       (state.currentPlayerIndex + 1) % state.players.length,
   };

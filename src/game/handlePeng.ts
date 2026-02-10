@@ -5,7 +5,7 @@ export function handlePeng(
   state: GameState,
   playerId: string
 ): GameState {
-  if (state.turnPhase !== 'waiting_response') {
+  if (state.turnPhase !== '等待响应') {
     throw new Error('当前不能碰');
   }
 
@@ -42,7 +42,7 @@ export function handlePeng(
     ...state,
     players,
     currentPlayerIndex: playerIndex,
-    turnPhase: 'waiting_discard',
+    turnPhase: '等待出牌',
     pendingResponses: undefined,
     lastDiscard: undefined,
   };

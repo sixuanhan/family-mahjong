@@ -14,13 +14,14 @@ export function createInitialGameState(
 
   const { wall, players: dealtPlayers } = dealTiles(shuffled, players);
 
-  const initialState: GameState = {
+    const initialState: GameState = {
     roomId,
     players: dealtPlayers,
     wall,
     currentPlayerIndex: 0,
-    turnPhase: 'waiting_draw',
-  };
+    turnPhase: '等待摸牌',
+    roomPhase: 'playing',
+    };
 
   // 第一个玩家自动摸一张牌
   return drawTile(initialState, dealtPlayers[0].id);
