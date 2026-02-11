@@ -2,8 +2,10 @@ import { useState, useRef, useEffect } from 'react'
 import './App.css'
 import type { Tile } from './types/tile';
 import type { GameState } from './game/gameState';
-import Hand from './Hand';
+import Hand, { toRiichiId, getTileComponent } from './Hand';
 import DiscardArea from './DiscardArea';
+import { MeldArea } from './MeldArea';
+import { TableTile } from './Tile3D';
 
 function App() {
   const ws = useRef<WebSocket | null>(null);
@@ -125,7 +127,7 @@ function App() {
     );
 
   const leftPlayer =
-    total >= 2 ? relativeOthers[0] ?? null : null;
+    total >= 3 ? relativeOthers[0] ?? null : null;
 
   const topPlayer =
     total === 4
@@ -151,6 +153,9 @@ function App() {
         gridTemplateColumns: '1fr 1fr 1fr',
         gap: 12,
         alignItems: 'center',
+        background: '#2e7d32',
+        borderRadius: 16,
+        boxShadow: 'inset 0 0 20px rgba(0,0,0,0.4)'
       }}
     >
       {/* ===== 上 ===== */}
@@ -158,6 +163,7 @@ function App() {
         {topPlayer && (
           <>
             <h4 style={{ textAlign: 'center' }}>{topPlayer.name}</h4>
+            <MeldArea melds={topPlayer.melds} />
             <DiscardArea tiles={topPlayer.discards} />
           </>
         )}
@@ -168,6 +174,7 @@ function App() {
         {leftPlayer && (
           <>
             <h4>{leftPlayer.name}</h4>
+            <MeldArea melds={leftPlayer.melds} />
             <DiscardArea tiles={leftPlayer.discards} />
           </>
         )}
@@ -191,6 +198,7 @@ function App() {
         {rightPlayer && (
           <>
             <h4>{rightPlayer.name}</h4>
+            <MeldArea melds={rightPlayer.melds} />
             <DiscardArea tiles={rightPlayer.discards} />
           </>
         )}
@@ -201,21 +209,51 @@ function App() {
         style={{
           gridRow: '3',
           gridColumn: '1 / span 3',
-          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 12,
         }}
       >
-        {/* ===== 我自己的弃牌 ===== */}
-        <div>
-          <h4 style={{ textAlign: 'center' }}>你的弃牌</h4>
-          <DiscardArea tiles={me.discards} />
+        {/* ===== 我自己的弃牌（6个一行居中） ===== */}
+        <div style={{ textAlign: 'center', width: '100%' }}>
+          <h4 style={{ marginBottom: 8 }}>你的弃牌</h4>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 40px)', gap: 0 }}>
+              {me.discards.map((tile) => {
+                const tileId = toRiichiId(tile);
+                const RiichiComponent = getTileComponent(tileId);
+                return (
+                  <TableTile key={tile.id} width={40} height={56}>
+                    {RiichiComponent && (
+                      <RiichiComponent width="100%" height="100%" />
+                    )}
+                  </TableTile>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        {/* ===== 手牌 ===== */}
-        <Hand
-          tiles={me.hand}
-          onSelect={handleSelectTile}
-          selectedTileId={selectedTileId}
-        />
+        {/* ===== 手牌和副露在一行 ===== */}
+        <div style={{ display: 'flex', gap: 20, alignItems: 'flex-end', width: '100%', justifyContent: 'center' }}>
+          {/* 左：手牌（居中） */}
+          <div style={{ textAlign: 'center' }}>
+            <Hand
+              tiles={me.hand}
+              onSelect={handleSelectTile}
+              selectedTileId={selectedTileId}
+            />
+          </div>
+
+          {/* 右：副露（在右侧） */}
+          {me.melds.length > 0 && (
+            <div style={{ textAlign: 'center' }}>
+              <h4 style={{ marginBottom: 8 }}>你的副露</h4>
+              <MeldArea melds={me.melds} />
+            </div>
+          )}
+        </div>
 
         {/* ===== 准备按钮 ===== */}
         {game.roomPhase === 'waiting_ready' && (
@@ -264,8 +302,7 @@ function App() {
             )}
           </div>
         )}
-  </div>
-
+      </div>
     </div>
   );
 }

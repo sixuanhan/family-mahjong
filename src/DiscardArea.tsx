@@ -1,5 +1,6 @@
 import type { Tile } from './types/tile';
-import { toRiichiId, getTileComponent, Tile3D } from './Hand';
+import { toRiichiId, getTileComponent } from './Hand';
+import { TableTile } from './Tile3D';
 
 export default function DiscardArea({ tiles }: { tiles: Tile[] }) {
   if (!tiles || tiles.length === 0) {
@@ -12,7 +13,8 @@ export default function DiscardArea({ tiles }: { tiles: Tile[] }) {
         display: 'flex',
         flexWrap: 'wrap',
         gap: 0,
-        maxWidth: 220,
+        maxWidth: '100%',
+        justifyContent: 'center',
       }}
     >
       {tiles.map((tile) => {
@@ -20,11 +22,11 @@ export default function DiscardArea({ tiles }: { tiles: Tile[] }) {
         const RiichiComponent = getTileComponent(tileId);
 
         return (
-          <Tile3D key={tile.id} width={40} height={56} depth={8}>
+          <TableTile key={tile.id} width={40} height={56}>
             {RiichiComponent && (
               <RiichiComponent width="100%" height="100%" />
             )}
-          </Tile3D>
+          </TableTile>
         );
       })}
     </div>

@@ -5,9 +5,10 @@ import {
   RegularTon, RegularNan, RegularShaa, RegularPei, RegularHaku, RegularHatsu, RegularChun,
 } from 'riichi-mahjong-tiles';
 import type { Tile as GameTile } from './types/tile';
+import { Tile3D_standing } from './Tile3D';
 
 // 麻将牌组件映射表
-const tileComponentMap: Record<string, React.ComponentType<any>> = {
+export const tileComponentMap: Record<string, React.ComponentType<any>> = {
   // 万子 (Man)
   '1m': RegularMan1, '2m': RegularMan2, '3m': RegularMan3, '4m': RegularMan4, '5m': RegularMan5,
   '6m': RegularMan6, '7m': RegularMan7, '8m': RegularMan8, '9m': RegularMan9,
@@ -57,78 +58,6 @@ export function toRiichiId(tile: GameTile): string {
 // 根据牌 ID 获取对应的组件
 export function getTileComponent(id: string) {
   return tileComponentMap[id];
-}
-
-// SVG-based Tile3D：精确绘制 front/top/right 三个面，并在 front 上放置牌面子元素
-export function Tile3D({
-  width = 56,
-  height = 80,
-  depth = 12,
-  radius = 6,
-  isSelected = false,
-  children,
-}: {
-  width?: number;
-  height?: number;
-  depth?: number;
-  radius?: number;
-  isSelected?: boolean;
-  children?: React.ReactNode;
-}) {
-  const dx = depth;
-  const dy = Math.round(depth / 2);
-  const viewW = width + dx;
-  const viewH = height + dy;
-
-  const topFill = isSelected ? '#c8f9d6' : '#f0fbf2';
-  const rightFill = isSelected ? '#9fe6a9' : '#dff5de';
-  const frontFill = isSelected ? '#b9f6ca' : '#e8f5e9';
-  const stroke = 'rgba(76,175,80,0.9)';
-
-  return (
-    <div style={{ position: 'relative', width, height: height + dy, boxSizing: 'border-box' }}>
-      <svg
-        width={viewW}
-        height={viewH}
-        viewBox={`0 0 ${viewW} ${viewH}`}
-        style={{ display: 'block' }}
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* top face (trapezoid) */}
-        <polygon
-          points={`${dx},0 ${dx + width},0 ${width},${dy} 0,${dy}`}
-          fill={topFill}
-          stroke={stroke}
-          strokeWidth={1.5}
-        />
-        {/* right face */}
-        <polygon
-          points={`${width},${dy} ${width + dx},0 ${width + dx},${height} ${width},${dy + height}`}
-          fill={rightFill}
-          stroke={stroke}
-          strokeWidth={1.5}
-        />
-        {/* front face (rounded rect) */}
-        <rect x={0} y={dy} rx={radius} ry={radius} width={width} height={height} fill={frontFill} stroke={stroke} strokeWidth={1.5} />
-      </svg>
-
-      {/* place the child SVG (tile face) on top of front face */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          top: dy,
-          width,
-          height,
-          padding: 6,
-          boxSizing: 'border-box',
-          pointerEvents: 'none',
-        }}
-      >
-        <div style={{ width: '100%', height: '100%' }}>{children}</div>
-      </div>
-    </div>
-  );
 }
 
 export default function Hand({
@@ -185,13 +114,13 @@ export default function Hand({
               display: 'inline-block',
             }}
           >
-            <Tile3D isSelected={isSelected} width={56} height={80} depth={depth} topDepth={10}>
+            <Tile3D_standing isSelected={isSelected} width={56} height={80} depth={depth}>
               {RiichiComponent ? (
                 <RiichiComponent width="100%" height="100%" />
               ) : (
                 <div style={{ color: 'red', fontSize: 12 }}>No component for {tileId}</div>
               )}
-            </Tile3D>
+            </Tile3D_standing>
           </div>
         );
       })}
