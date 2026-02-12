@@ -5,7 +5,7 @@ import {
   RegularTon, RegularNan, RegularShaa, RegularPei, RegularHaku, RegularHatsu, RegularChun,
 } from 'riichi-mahjong-tiles';
 import type { Tile as GameTile } from './types/tile';
-import { Tile3D_standing } from './Tile3D';
+import { Tile3D_standing, type TileDirection } from './Tile3D';
 
 // 麻将牌组件映射表
 export const tileComponentMap: Record<string, React.ComponentType<any>> = {
@@ -121,6 +121,115 @@ export default function Hand({
                 <div style={{ color: 'red', fontSize: 12 }}>No component for {tileId}</div>
               )}
             </Tile3D_standing>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// 展示其他玩家的手牌（只显示牌背）
+export function OtherPlayerHand({
+  tileCount,
+  direction,
+  tileWidth = 40,
+  tileHeight = 56,
+}: {
+  tileCount: number;
+  direction: TileDirection;
+  tileWidth?: number;
+  tileHeight?: number;
+}) {
+  const depth = 8;
+  const isSideView = direction === 'left' || direction === 'right';
+  // 侧视图使用更大的倾斜度
+  const dy = isSideView ? depth : Math.round(depth / 2);
+  
+  // 对于 top 方向，使用原来的水平布局
+  if (!isSideView) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 0,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {Array.from({ length: tileCount }).map((_, idx) => (
+          <div
+            key={idx}
+            style={{
+              marginRight: idx === tileCount - 1 ? 0 : -Math.round(depth / 2),
+              zIndex: idx,
+            }}
+          >
+            <Tile3D_standing
+              width={tileWidth}
+              height={tileHeight}
+              depth={depth}
+              direction={direction}
+              showBack
+            />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // 左右侧视图：斜向堆叠
+  const sliver = Math.round(tileWidth * 0.3);
+  const tileViewWidth = depth + sliver;
+  const tileViewHeight = tileHeight + dy;
+  
+  // 每张牌只露出 dy（顶面高度）+ sliver 的部分
+  const verticalStep = -dy; // 每张牌垂直方向只露出这么多
+  const horizontalStep = sliver; // 水平偏移等于 sliver 宽度
+  
+  const totalWidth = tileViewWidth + (tileCount - 1) * horizontalStep;
+  const totalHeight = tileViewHeight + (tileCount - 1) * verticalStep;
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: totalWidth,
+        height: totalHeight,
+      }}
+    >
+      {Array.from({ length: tileCount }).map((_, idx) => {
+        // 从后往前渲染，idx=0 是最后面的牌
+        let left = 0;
+        let top = 0;
+        
+        if (direction === 'left') {
+          // 左侧：最前面的牌在左下，后面的牌依次向右上延伸
+          left = (tileCount - 1 - idx) * horizontalStep;
+          top = (tileCount - 1 - idx) * verticalStep;
+        } else {
+          // 右侧：最前面的牌在右下，后面的牌依次向左上延伸
+          left = idx * horizontalStep;
+          top = (tileCount - 1 - idx) * verticalStep;
+        }
+
+        return (
+          <div
+            key={idx}
+            style={{
+              position: 'absolute',
+              left,
+              top,
+              zIndex: idx, // 后面的牌 zIndex 更高
+            }}
+          >
+            <Tile3D_standing
+              width={tileWidth}
+              height={tileHeight}
+              depth={depth}
+              direction={direction}
+              showBack
+            />
           </div>
         );
       })}

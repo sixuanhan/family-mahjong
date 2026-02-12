@@ -9,7 +9,15 @@ export function passResponse(
   }
 
   const pending = state.pendingResponses!;
-  if (!pending.responders.includes(playerId)) {
+  
+  // 检查玩家是否有资格响应（胡、碰、杠、吃）
+  const canRespond =
+    pending.huResponders?.includes(playerId) ||
+    pending.responders.includes(playerId) ||
+    pending.gangResponders?.includes(playerId) ||
+    pending.chiResponder === playerId;
+
+  if (!canRespond) {
     throw new Error('你不能回应这张牌');
   }
 

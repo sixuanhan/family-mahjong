@@ -4,6 +4,9 @@ import { createInitialGameState } from '../src/game/initGame.js';
 import { discardTile } from '../src/game/discard.js';
 import { drawTile } from '../src/game/draw.js';
 import { handlePeng } from '../src/game/handlePeng.js';
+import { handleChi } from '../src/game/handleChi.js';
+import { handleMingGang, handleAnGang, handleJiaGang } from '../src/game/handleGang.js';
+import { handleRon, handleZimo } from '../src/game/handleHu.js';
 import { passResponse } from '../src/game/passResponse.js';
 import type { GameState } from '../src/game/gameState.js';
 import { randomUUID } from 'crypto';
@@ -120,24 +123,55 @@ wss.on('connection', (ws) => {
         case 'draw':
         case 'discard':
         case 'peng':
+        case 'chi':
+        case 'gang':
+        case 'angang':
+        case 'jiagang':
+        case 'hu':
+        case 'zimo':
         case 'pass': {
             if (game.roomPhase !== 'playing') return;
 
             let newGame = game;
             if (msg.action === 'draw') {
-            newGame = drawTile(game, playerId);
+              newGame = drawTile(game, playerId);
             }
             if (msg.action === 'discard') {
-            newGame = discardTile(game, playerId, msg.tileId);
+              newGame = discardTile(game, playerId, msg.tileId);
             }
             if (msg.action === 'peng') {
-            newGame = handlePeng(game, playerId);
+              newGame = handlePeng(game, playerId);
+            }
+            if (msg.action === 'chi') {
+              newGame = handleChi(game, playerId, msg.tileIds);
+            }
+            if (msg.action === 'gang') {
+              newGame = handleMingGang(game, playerId);
+            }
+            if (msg.action === 'angang') {
+              newGame = handleAnGang(game, playerId, msg.tileId);
+            }
+            if (msg.action === 'jiagang') {
+              newGame = handleJiaGang(game, playerId, msg.tileId);
+            }
+            if (msg.action === 'hu') {
+              newGame = handleRon(game, playerId);
+            }
+            if (msg.action === 'zimo') {
+              newGame = handleZimo(game, playerId);
             }
             if (msg.action === 'pass') {
-            newGame = passResponse(game, playerId);
+              newGame = passResponse(game, playerId);
             }
 
             game = newGame;
+            
+            // 自动摸牌：如果当前是"等待摸牌"阶段，自动帮当前玩家摸牌
+            if (game.turnPhase === '等待摸牌' && game.wall.length > 0) {
+              const currentPlayer = game.players[game.currentPlayerIndex];
+              game = drawTile(game, currentPlayer.id);
+            }
+            
             broadcast(game);
             break;
         }

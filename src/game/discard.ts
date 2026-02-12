@@ -1,6 +1,8 @@
 import type { GameState } from './gameState';
-import type { Tile } from '../types/tile';
 import { canPeng } from './peng';
+import { canChi } from './chi';
+import { canMingGang } from './gang';
+import { canRon } from './hu';
 
 /**
  * 当前玩家出一张牌，并切换到下一个玩家
@@ -29,35 +31,71 @@ export function discardTile(
   const [tile] = currentPlayer.hand.splice(tileIndex, 1);
   currentPlayer.discards.push(tile);
 
-  const responders = players
+  const stateWithDiscard = { ...state, players, lastDiscard: { tile, playerId } };
+
+  // 检查胡（荣和）- 优先级最高
+  const huResponders = players
     .filter(p =>
       p.id !== playerId &&
-      canPeng(
-        { ...state, players, lastDiscard: { tile, playerId } },
-        p.id
-      )
+      canRon(stateWithDiscard, p.id)
     )
     .map(p => p.id);
+
+  // 检查碰
+  const pengResponders = players
+    .filter(p =>
+      p.id !== playerId &&
+      canPeng(stateWithDiscard, p.id)
+    )
+    .map(p => p.id);
+
+  // 检查明杠
+  const gangResponders = players
+    .filter(p =>
+      p.id !== playerId &&
+      canMingGang(stateWithDiscard, p.id)
+    )
+    .map(p => p.id);
+
+  // 检查吃（只有下家）
+  const nextPlayerIndex = (state.currentPlayerIndex + 1) % players.length;
+  const nextPlayer = players[nextPlayerIndex];
+  const chiResponder = canChi(stateWithDiscard, nextPlayer.id)
+    ? nextPlayer.id
+    : undefined;
+
+  // 合并所有响应者
+  const allResponders = [
+    ...new Set([
+      ...huResponders,
+      ...pengResponders,
+      ...gangResponders,
+      ...(chiResponder ? [chiResponder] : [])
+    ])
+  ];
+
+  const hasResponders = allResponders.length > 0;
 
   return {
     ...state,
     players,
     lastDiscard: { tile, playerId },
-    turnPhase: responders.length > 0 ? '等待响应' : '等待摸牌',
-    currentPlayerIndex:
-      responders.length > 0
-        ? state.currentPlayerIndex
-        : (state.currentPlayerIndex + 1) % players.length,
-    pendingResponses:
-      responders.length > 0
-        ? {
-            tile,
-            fromPlayerId: playerId,
-            responders,
-            responses: Object.fromEntries(
-              responders.map(id => [id, 'pending'])
-            ),
-          }
-        : undefined,
+    turnPhase: hasResponders ? '等待响应' : '等待摸牌',
+    currentPlayerIndex: hasResponders
+      ? state.currentPlayerIndex
+      : (state.currentPlayerIndex + 1) % players.length,
+    pendingResponses: hasResponders
+      ? {
+          tile,
+          fromPlayerId: playerId,
+          responders: pengResponders,
+          gangResponders: gangResponders.length > 0 ? gangResponders : undefined,
+          chiResponder,
+          huResponders: huResponders.length > 0 ? huResponders : undefined,
+          responses: Object.fromEntries(
+            allResponders.map(id => [id, 'pending'])
+          ),
+        }
+      : undefined,
   };
 }
