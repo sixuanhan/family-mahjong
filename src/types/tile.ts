@@ -1,11 +1,13 @@
 // 花色
-export type Suit = 'wan' | 'tong' | 'tiao' | 'wind' | 'dragon';
+export type Suit = 'wan' | 'tong' | 'tiao' | 'wind' | 'dragon' | 'flower';
 
 // 数值
 export type TileValue =
   | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
   | 'east' | 'south' | 'west' | 'north'
-  | 'red' | 'green' | 'white';
+  | 'red' | 'green' | 'white'
+  | 'spring' | 'summer' | 'autumn' | 'winter'  // 四季花
+  | 'plum' | 'orchid' | 'bamboo' | 'chrysanthemum'; // 四君子
 
 // 单张麻将牌
 export interface Tile {

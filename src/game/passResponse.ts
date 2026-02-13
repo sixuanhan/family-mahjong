@@ -1,4 +1,6 @@
 import type { GameState } from './gameState';
+import { getWinningResponse, allResponsesDone, endResponsePhase } from './resolveResponse';
+import { handleChi } from './handleChi';
 
 export function passResponse(
   state: GameState,
@@ -26,26 +28,26 @@ export function passResponse(
     [playerId]: 'pass' as const,
   };
 
-  const allDone = Object.values(responses).every(
-    r => r !== 'pending'
-  );
+  const newState = {
+    ...state,
+    pendingResponses: {
+      ...pending,
+      responses,
+    },
+  };
 
-  if (!allDone) {
-    return {
-      ...state,
-      pendingResponses: {
-        ...pending,
-        responses,
-      },
-    };
+  // 检查是否所有响应都已完成
+  if (!allResponsesDone(newState)) {
+    return newState;
+  }
+
+  // 检查是否有获胜的响应（chi）
+  const winner = getWinningResponse(newState);
+  if (winner && winner.action === 'chi' && pending.chiTileIds) {
+    // 执行chi
+    return handleChi(newState, winner.playerId, pending.chiTileIds, true);
   }
 
   // 所有人都放弃 → 下家摸牌
-  return {
-    ...state,
-    pendingResponses: undefined,
-    turnPhase: '等待摸牌',
-    currentPlayerIndex:
-      (state.currentPlayerIndex + 1) % state.players.length,
-  };
+  return endResponsePhase(newState);
 }

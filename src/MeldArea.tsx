@@ -1,6 +1,22 @@
 import { TableTile, type TileDirection } from './Tile3D';
 import type { Meld } from './types/player'
-import { toRiichiId, getTileComponent } from './Hand';
+import { toRiichiId, getTileComponent, getFlowerImage } from './Hand';
+
+// 花牌组件
+function FlowerTile({ imageSrc }: { imageSrc: string }) {
+  return (
+    <img 
+      src={imageSrc} 
+      alt="flower" 
+      style={{
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+        borderRadius: 2,
+      }}
+    />
+  );
+}
 
 export function MeldArea({
   melds,
@@ -38,16 +54,19 @@ export function MeldArea({
             style={{
               display: 'flex',
               flexDirection: isSideView ? 'column' : 'row',
-              gap: 2,
             }}
           >
             {displayTiles.map((tile) => {
               const riichiId = toRiichiId(tile);
               const TileComponent = getTileComponent(riichiId);
+              const isFlower = riichiId.startsWith('flower-');
+              const flowerImg = isFlower ? getFlowerImage(riichiId) : undefined;
               
               return (
                 <TableTile key={tile.id} direction={direction}>
-                  {TileComponent ? (
+                  {isFlower && flowerImg ? (
+                    <FlowerTile imageSrc={flowerImg} />
+                  ) : TileComponent ? (
                     <TileComponent width="100%" height="100%" />
                   ) : (
                     <div>?</div>

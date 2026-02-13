@@ -7,6 +7,7 @@ export function Tile3D_standing({
   depth = 12,
   radius = 6,
   isSelected = false,
+  isHighlighted = false,
   direction = 'bottom',
   showBack = false,
   children,
@@ -16,6 +17,7 @@ export function Tile3D_standing({
   depth?: number;
   radius?: number;
   isSelected?: boolean;
+  isHighlighted?: boolean;
   direction?: TileDirection;
   showBack?: boolean;
   children?: React.ReactNode;
@@ -26,11 +28,12 @@ export function Tile3D_standing({
   // 侧视图使用更大的倾斜度
   const dy = isSideView ? depth : Math.round(depth / 2);
 
-  const topFill = isSelected ? '#c8f9d6' : '#f0fbf2';
-  const sideFill = isSelected ? '#9fe6a9' : '#dff5de';
-  const frontFill = isSelected ? '#b9f6ca' : '#e8f5e9';
+  // 高亮新摸的牌使用明亮的黄色调
+  const topFill = isHighlighted ? '#fff59d' : isSelected ? '#c8f9d6' : '#f0fbf2';
+  const sideFill = isHighlighted ? '#ffee58' : isSelected ? '#9fe6a9' : '#dff5de';
+  const frontFill = isHighlighted ? '#fffde7' : isSelected ? '#b9f6ca' : '#e8f5e9';
   const backFill = '#4a7c59'; // 牌背面颜色（深绿色）
-  const stroke = 'rgba(76,175,80,0.9)';
+  const stroke = isHighlighted ? 'rgba(255,193,7,1)' : 'rgba(76,175,80,0.9)';
   
   if (isSideView) {
     // 侧视图：以侧面为主，显示一部分正面/背面
@@ -208,8 +211,11 @@ export function TableTile({
   direction?: TileDirection;
   children?: React.ReactNode;
 }) {
-  const fill = isHighlighted ? '#d7ffd9' : '#f5f5f5';
-  const stroke = 'rgba(0,0,0,0.25)';
+  const fill = isHighlighted ? '#fff9c4' : '#f5f5f5';
+  const stroke = isHighlighted ? '#ff9800' : 'rgba(0,0,0,0.25)';
+  const boxShadowStyle = isHighlighted 
+    ? '0 0 8px 2px rgba(255, 152, 0, 0.6), 0 2px 4px rgba(0,0,0,0.15)' 
+    : '0 2px 4px rgba(0,0,0,0.15)';
   
   // 根据方向设置旋转角度
   const rotationMap: Record<TileDirection, number> = {
@@ -242,7 +248,7 @@ export function TableTile({
           borderRadius: radius,
           background: fill,
           border: `1.5px solid ${stroke}`,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+          boxShadow: boxShadowStyle,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

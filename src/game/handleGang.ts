@@ -60,6 +60,7 @@ export function handleMingGang(
     turnPhase: '等待出牌',
     pendingResponses: undefined,
     lastDiscard: undefined,
+    lastDrawnTileId: drawnTile.id,
   };
 }
 
@@ -119,6 +120,7 @@ export function handleAnGang(
     players,
     wall,
     turnPhase: '等待出牌',
+    lastDrawnTileId: drawnTile.id,
   };
 }
 
@@ -181,5 +183,6 @@ export function handleJiaGang(
     players,
     wall,
     turnPhase: '等待出牌',
+    lastDrawnTileId: drawnTile.id,
   };
 }

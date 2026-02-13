@@ -4,10 +4,12 @@ import { TableTile, type TileDirection } from './Tile3D';
 
 export default function DiscardArea({ 
   tiles, 
-  direction = 'bottom' 
+  direction = 'bottom',
+  highlightedTileId,
 }: { 
   tiles: Tile[];
   direction?: TileDirection;
+  highlightedTileId?: string;
 }) {
   const tileWidth = 40;
   const tileHeight = 56;
@@ -40,6 +42,7 @@ export default function DiscardArea({
         {tiles.map((tile) => {
           const tileId = toRiichiId(tile);
           const RiichiComponent = getTileComponent(tileId);
+          const isHighlighted = tile.id === highlightedTileId;
 
           return (
             <div
@@ -48,7 +51,7 @@ export default function DiscardArea({
                 transform: direction === 'right' ? 'scaleY(-1)' : 'none',
               }}
             >
-              <TableTile width={tileWidth} height={tileHeight} direction={direction}>
+              <TableTile width={tileWidth} height={tileHeight} direction={direction} isHighlighted={isHighlighted}>
                 {RiichiComponent && (
                   <RiichiComponent width="100%" height="100%" />
                 )}
@@ -79,9 +82,10 @@ export default function DiscardArea({
         {displayTiles.map((tile) => {
           const tileId = toRiichiId(tile);
           const RiichiComponent = getTileComponent(tileId);
+          const isHighlighted = tile.id === highlightedTileId;
 
           return (
-            <TableTile key={tile.id} width={tileWidth} height={tileHeight} direction={direction}>
+            <TableTile key={tile.id} width={tileWidth} height={tileHeight} direction={direction} isHighlighted={isHighlighted}>
               {RiichiComponent && (
                 <RiichiComponent width="100%" height="100%" />
               )}

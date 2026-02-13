@@ -1,0 +1,795 @@
+{
+  "roomId": "room1",
+  "players": [
+    {
+      "id": "6d8f70d6-eed8-4a1b-92be-cca31daff4a8",
+      "name": "1",
+      "hand": [
+        {
+          "id": "tile-280",
+          "suit": "flower",
+          "value": "spring"
+        },
+        {
+          "id": "tile-158",
+          "suit": "wan",
+          "value": 4
+        },
+        {
+          "id": "tile-211",
+          "suit": "tong",
+          "value": 8
+        },
+        {
+          "id": "tile-170",
+          "suit": "wan",
+          "value": 7
+        },
+        {
+          "id": "tile-277",
+          "suit": "dragon",
+          "value": "white"
+        },
+        {
+          "id": "tile-191",
+          "suit": "tong",
+          "value": 3
+        },
+        {
+          "id": "tile-174",
+          "suit": "wan",
+          "value": 8
+        },
+        {
+          "id": "tile-168",
+          "suit": "wan",
+          "value": 7
+        },
+        {
+          "id": "tile-148",
+          "suit": "wan",
+          "value": 2
+        },
+        {
+          "id": "tile-163",
+          "suit": "wan",
+          "value": 5
+        },
+        {
+          "id": "tile-234",
+          "suit": "tiao",
+          "value": 5
+        },
+        {
+          "id": "tile-258",
+          "suit": "wind",
+          "value": "south"
+        },
+        {
+          "id": "tile-284",
+          "suit": "flower",
+          "value": "plum"
+        }
+      ],
+      "melds": [],
+      "discards": [],
+      "isReady": true,
+      "isOnline": true
+    },
+    {
+      "id": "9fb1a119-1545-4288-8e16-9b30bf25208e",
+      "name": "2",
+      "hand": [
+        {
+          "id": "tile-157",
+          "suit": "wan",
+          "value": 4
+        },
+        {
+          "id": "tile-196",
+          "suit": "tong",
+          "value": 5
+        },
+        {
+          "id": "tile-263",
+          "suit": "wind",
+          "value": "west"
+        },
+        {
+          "id": "tile-226",
+          "suit": "tiao",
+          "value": 3
+        },
+        {
+          "id": "tile-251",
+          "suit": "tiao",
+          "value": 9
+        },
+        {
+          "id": "tile-246",
+          "suit": "tiao",
+          "value": 8
+        },
+        {
+          "id": "tile-265",
+          "suit": "wind",
+          "value": "north"
+        },
+        {
+          "id": "tile-200",
+          "suit": "tong",
+          "value": 6
+        },
+        {
+          "id": "tile-204",
+          "suit": "tong",
+          "value": 7
+        },
+        {
+          "id": "tile-279",
+          "suit": "dragon",
+          "value": "white"
+        },
+        {
+          "id": "tile-259",
+          "suit": "wind",
+          "value": "south"
+        },
+        {
+          "id": "tile-269",
+          "suit": "dragon",
+          "value": "red"
+        },
+        {
+          "id": "tile-255",
+          "suit": "wind",
+          "value": "east"
+        }
+      ],
+      "melds": [],
+      "discards": [],
+      "isReady": true,
+      "isOnline": true
+    },
+    {
+      "id": "8a8b7d03-c076-4919-aba0-2a6444473a76",
+      "name": "3",
+      "hand": [
+        {
+          "id": "tile-253",
+          "suit": "wind",
+          "value": "east"
+        },
+        {
+          "id": "tile-240",
+          "suit": "tiao",
+          "value": 7
+        },
+        {
+          "id": "tile-268",
+          "suit": "dragon",
+          "value": "red"
+        },
+        {
+          "id": "tile-247",
+          "suit": "tiao",
+          "value": 8
+        },
+        {
+          "id": "tile-229",
+          "suit": "tiao",
+          "value": 4
+        },
+        {
+          "id": "tile-210",
+          "suit": "tong",
+          "value": 8
+        },
+        {
+          "id": "tile-182",
+          "suit": "tong",
+          "value": 1
+        },
+        {
+          "id": "tile-187",
+          "suit": "tong",
+          "value": 2
+        },
+        {
+          "id": "tile-190",
+          "suit": "tong",
+          "value": 3
+        },
+        {
+          "id": "tile-145",
+          "suit": "wan",
+          "value": 1
+        },
+        {
+          "id": "tile-238",
+          "suit": "tiao",
+          "value": 6
+        },
+        {
+          "id": "tile-257",
+          "suit": "wind",
+          "value": "south"
+        },
+        {
+          "id": "tile-217",
+          "suit": "tiao",
+          "value": 1
+        },
+        {
+          "id": "tile-223",
+          "suit": "tiao",
+          "value": 2
+        }
+      ],
+      "melds": [],
+      "discards": [],
+      "isReady": true,
+      "isOnline": true
+    }
+  ],
+  "wall": [
+    {
+      "id": "tile-231",
+      "suit": "tiao",
+      "value": 4
+    },
+    {
+      "id": "tile-171",
+      "suit": "wan",
+      "value": 7
+    },
+    {
+      "id": "tile-152",
+      "suit": "wan",
+      "value": 3
+    },
+    {
+      "id": "tile-235",
+      "suit": "tiao",
+      "value": 5
+    },
+    {
+      "id": "tile-273",
+      "suit": "dragon",
+      "value": "green"
+    },
+    {
+      "id": "tile-243",
+      "suit": "tiao",
+      "value": 7
+    },
+    {
+      "id": "tile-225",
+      "suit": "tiao",
+      "value": 3
+    },
+    {
+      "id": "tile-233",
+      "suit": "tiao",
+      "value": 5
+    },
+    {
+      "id": "tile-272",
+      "suit": "dragon",
+      "value": "green"
+    },
+    {
+      "id": "tile-261",
+      "suit": "wind",
+      "value": "west"
+    },
+    {
+      "id": "tile-195",
+      "suit": "tong",
+      "value": 4
+    },
+    {
+      "id": "tile-185",
+      "suit": "tong",
+      "value": 2
+    },
+    {
+      "id": "tile-227",
+      "suit": "tiao",
+      "value": 3
+    },
+    {
+      "id": "tile-276",
+      "suit": "dragon",
+      "value": "white"
+    },
+    {
+      "id": "tile-199",
+      "suit": "tong",
+      "value": 5
+    },
+    {
+      "id": "tile-188",
+      "suit": "tong",
+      "value": 3
+    },
+    {
+      "id": "tile-150",
+      "suit": "wan",
+      "value": 2
+    },
+    {
+      "id": "tile-201",
+      "suit": "tong",
+      "value": 6
+    },
+    {
+      "id": "tile-155",
+      "suit": "wan",
+      "value": 3
+    },
+    {
+      "id": "tile-149",
+      "suit": "wan",
+      "value": 2
+    },
+    {
+      "id": "tile-147",
+      "suit": "wan",
+      "value": 1
+    },
+    {
+      "id": "tile-242",
+      "suit": "tiao",
+      "value": 7
+    },
+    {
+      "id": "tile-166",
+      "suit": "wan",
+      "value": 6
+    },
+    {
+      "id": "tile-162",
+      "suit": "wan",
+      "value": 5
+    },
+    {
+      "id": "tile-184",
+      "suit": "tong",
+      "value": 2
+    },
+    {
+      "id": "tile-262",
+      "suit": "wind",
+      "value": "west"
+    },
+    {
+      "id": "tile-256",
+      "suit": "wind",
+      "value": "south"
+    },
+    {
+      "id": "tile-230",
+      "suit": "tiao",
+      "value": 4
+    },
+    {
+      "id": "tile-154",
+      "suit": "wan",
+      "value": 3
+    },
+    {
+      "id": "tile-281",
+      "suit": "flower",
+      "value": "summer"
+    },
+    {
+      "id": "tile-270",
+      "suit": "dragon",
+      "value": "red"
+    },
+    {
+      "id": "tile-194",
+      "suit": "tong",
+      "value": 4
+    },
+    {
+      "id": "tile-180",
+      "suit": "tong",
+      "value": 1
+    },
+    {
+      "id": "tile-208",
+      "suit": "tong",
+      "value": 8
+    },
+    {
+      "id": "tile-244",
+      "suit": "tiao",
+      "value": 8
+    },
+    {
+      "id": "tile-220",
+      "suit": "tiao",
+      "value": 2
+    },
+    {
+      "id": "tile-274",
+      "suit": "dragon",
+      "value": "green"
+    },
+    {
+      "id": "tile-160",
+      "suit": "wan",
+      "value": 5
+    },
+    {
+      "id": "tile-197",
+      "suit": "tong",
+      "value": 5
+    },
+    {
+      "id": "tile-236",
+      "suit": "tiao",
+      "value": 6
+    },
+    {
+      "id": "tile-177",
+      "suit": "wan",
+      "value": 9
+    },
+    {
+      "id": "tile-156",
+      "suit": "wan",
+      "value": 4
+    },
+    {
+      "id": "tile-206",
+      "suit": "tong",
+      "value": 7
+    },
+    {
+      "id": "tile-179",
+      "suit": "wan",
+      "value": 9
+    },
+    {
+      "id": "tile-189",
+      "suit": "tong",
+      "value": 3
+    },
+    {
+      "id": "tile-176",
+      "suit": "wan",
+      "value": 9
+    },
+    {
+      "id": "tile-286",
+      "suit": "flower",
+      "value": "bamboo"
+    },
+    {
+      "id": "tile-167",
+      "suit": "wan",
+      "value": 6
+    },
+    {
+      "id": "tile-245",
+      "suit": "tiao",
+      "value": 8
+    },
+    {
+      "id": "tile-183",
+      "suit": "tong",
+      "value": 1
+    },
+    {
+      "id": "tile-165",
+      "suit": "wan",
+      "value": 6
+    },
+    {
+      "id": "tile-260",
+      "suit": "wind",
+      "value": "west"
+    },
+    {
+      "id": "tile-151",
+      "suit": "wan",
+      "value": 2
+    },
+    {
+      "id": "tile-175",
+      "suit": "wan",
+      "value": 8
+    },
+    {
+      "id": "tile-178",
+      "suit": "wan",
+      "value": 9
+    },
+    {
+      "id": "tile-285",
+      "suit": "flower",
+      "value": "orchid"
+    },
+    {
+      "id": "tile-169",
+      "suit": "wan",
+      "value": 7
+    },
+    {
+      "id": "tile-275",
+      "suit": "dragon",
+      "value": "green"
+    },
+    {
+      "id": "tile-164",
+      "suit": "wan",
+      "value": 6
+    },
+    {
+      "id": "tile-271",
+      "suit": "dragon",
+      "value": "red"
+    },
+    {
+      "id": "tile-213",
+      "suit": "tong",
+      "value": 9
+    },
+    {
+      "id": "tile-252",
+      "suit": "wind",
+      "value": "east"
+    },
+    {
+      "id": "tile-278",
+      "suit": "dragon",
+      "value": "white"
+    },
+    {
+      "id": "tile-224",
+      "suit": "tiao",
+      "value": 3
+    },
+    {
+      "id": "tile-267",
+      "suit": "wind",
+      "value": "north"
+    },
+    {
+      "id": "tile-250",
+      "suit": "tiao",
+      "value": 9
+    },
+    {
+      "id": "tile-222",
+      "suit": "tiao",
+      "value": 2
+    },
+    {
+      "id": "tile-216",
+      "suit": "tiao",
+      "value": 1
+    },
+    {
+      "id": "tile-144",
+      "suit": "wan",
+      "value": 1
+    },
+    {
+      "id": "tile-207",
+      "suit": "tong",
+      "value": 7
+    },
+    {
+      "id": "tile-248",
+      "suit": "tiao",
+      "value": 9
+    },
+    {
+      "id": "tile-287",
+      "suit": "flower",
+      "value": "chrysanthemum"
+    },
+    {
+      "id": "tile-172",
+      "suit": "wan",
+      "value": 8
+    },
+    {
+      "id": "tile-266",
+      "suit": "wind",
+      "value": "north"
+    },
+    {
+      "id": "tile-193",
+      "suit": "tong",
+      "value": 4
+    },
+    {
+      "id": "tile-237",
+      "suit": "tiao",
+      "value": 6
+    },
+    {
+      "id": "tile-209",
+      "suit": "tong",
+      "value": 8
+    },
+    {
+      "id": "tile-173",
+      "suit": "wan",
+      "value": 8
+    },
+    {
+      "id": "tile-283",
+      "suit": "flower",
+      "value": "winter"
+    },
+    {
+      "id": "tile-221",
+      "suit": "tiao",
+      "value": 2
+    },
+    {
+      "id": "tile-192",
+      "suit": "tong",
+      "value": 4
+    },
+    {
+      "id": "tile-198",
+      "suit": "tong",
+      "value": 5
+    },
+    {
+      "id": "tile-205",
+      "suit": "tong",
+      "value": 7
+    },
+    {
+      "id": "tile-228",
+      "suit": "tiao",
+      "value": 4
+    },
+    {
+      "id": "tile-146",
+      "suit": "wan",
+      "value": 1
+    },
+    {
+      "id": "tile-203",
+      "suit": "tong",
+      "value": 6
+    },
+    {
+      "id": "tile-202",
+      "suit": "tong",
+      "value": 6
+    },
+    {
+      "id": "tile-153",
+      "suit": "wan",
+      "value": 3
+    },
+    {
+      "id": "tile-181",
+      "suit": "tong",
+      "value": 1
+    },
+    {
+      "id": "tile-212",
+      "suit": "tong",
+      "value": 9
+    },
+    {
+      "id": "tile-232",
+      "suit": "tiao",
+      "value": 5
+    },
+    {
+      "id": "tile-161",
+      "suit": "wan",
+      "value": 5
+    },
+    {
+      "id": "tile-218",
+      "suit": "tiao",
+      "value": 1
+    },
+    {
+      "id": "tile-215",
+      "suit": "tong",
+      "value": 9
+    },
+    {
+      "id": "tile-159",
+      "suit": "wan",
+      "value": 4
+    },
+    {
+      "id": "tile-264",
+      "suit": "wind",
+      "value": "north"
+    },
+    {
+      "id": "tile-241",
+      "suit": "tiao",
+      "value": 7
+    },
+    {
+      "id": "tile-186",
+      "suit": "tong",
+      "value": 2
+    },
+    {
+      "id": "tile-249",
+      "suit": "tiao",
+      "value": 9
+    },
+    {
+      "id": "tile-219",
+      "suit": "tiao",
+      "value": 1
+    },
+    {
+      "id": "tile-214",
+      "suit": "tong",
+      "value": 9
+    },
+    {
+      "id": "tile-239",
+      "suit": "tiao",
+      "value": 6
+    },
+    {
+      "id": "tile-282",
+      "suit": "flower",
+      "value": "autumn"
+    },
+    {
+      "id": "tile-254",
+      "suit": "wind",
+      "value": "east"
+    }
+  ],
+  "currentPlayerIndex": 2,
+  "turnPhase": "等待出牌",
+  "roomPhase": "playing",
+  "playerScores": {
+    "6d8f70d6-eed8-4a1b-92be-cca31daff4a8": 250,
+    "9fb1a119-1545-4288-8e16-9b30bf25208e": 250,
+    "8a8b7d03-c076-4919-aba0-2a6444473a76": 250
+  },
+  "zhuangIndex": 2,
+  "gameNumber": 1,
+  "huangzhuangCount": 0,
+  "diceRolls": [
+    {
+      "playerId": "6d8f70d6-eed8-4a1b-92be-cca31daff4a8",
+      "dice": [
+        1,
+        6
+      ],
+      "total": 7
+    },
+    {
+      "playerId": "9fb1a119-1545-4288-8e16-9b30bf25208e",
+      "dice": [
+        1,
+        5
+      ],
+      "total": 6
+    },
+    {
+      "playerId": "8a8b7d03-c076-4919-aba0-2a6444473a76",
+      "dice": [
+        4,
+        6
+      ],
+      "total": 10
+    }
+  ],
+  "lastDrawnTileId": "tile-223"
+}

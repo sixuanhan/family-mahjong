@@ -1,7 +1,7 @@
 import type { Tile } from './tile';
 
 export interface Meld {
-  type: 'peng' | 'gang' | 'chi';
+  type: 'peng' | 'gang' | 'chi' | 'flower';
   tiles: Tile[];
   fromPlayerId?: string;
 }

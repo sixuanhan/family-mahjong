@@ -39,5 +39,14 @@ export function createFullTileSet(): Tile[] {
     }
   }
 
+  // 花牌（8张，每种1张）
+  const flowers: TileValue[] = [
+    'spring', 'summer', 'autumn', 'winter',  // 四季
+    'plum', 'orchid', 'bamboo', 'chrysanthemum',  // 四君子
+  ];
+  for (const flower of flowers) {
+    tiles.push(createTile('flower', flower));
+  }
+
   return tiles;
 }

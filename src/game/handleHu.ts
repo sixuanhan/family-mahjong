@@ -1,5 +1,5 @@
 import type { GameState } from './gameState';
-import { canRon, canZimo } from './hu';
+import { canRon, canZimo, checkHu } from './hu';
 
 /**
  * 处理荣和（别人打出的牌胡牌）
@@ -26,7 +26,11 @@ export function handleRon(
   const player = players[playerIndex];
 
   // 将胡的牌加入手牌（展示用）
-  player.hand.push(pending.tile);
+  const handWithDiscard = [...player.hand, pending.tile];
+  player.hand = handWithDiscard;
+
+  // 计算分数
+  const huResult = checkHu(handWithDiscard, player.melds, { isZimo: false });
 
   return {
     ...state,
@@ -37,6 +41,8 @@ export function handleRon(
       winType: 'ron',
       winningTile: pending.tile,
       fromPlayerId: pending.fromPlayerId,
+      patterns: huResult.patterns,
+      totalScore: huResult.totalScore,
     },
     pendingResponses: undefined,
     lastDiscard: undefined,
@@ -68,6 +74,9 @@ export function handleZimo(
   // 找到最后摸的那张牌（手牌最后一张）
   const winningTile = player.hand[player.hand.length - 1];
 
+  // 计算分数
+  const huResult = checkHu(player.hand, player.melds, { isZimo: true });
+
   return {
     ...state,
     turnPhase: '游戏结束',
@@ -75,6 +84,8 @@ export function handleZimo(
       playerId,
       winType: 'zimo',
       winningTile,
+      patterns: huResult.patterns,
+      totalScore: huResult.totalScore,
     },
   };
 }

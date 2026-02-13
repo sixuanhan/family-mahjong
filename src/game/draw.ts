@@ -1,5 +1,4 @@
 import type { GameState } from './gameState';
-import type { Tile } from '../types/tile';
 
 /**
  * 当前玩家摸一张牌
@@ -21,15 +20,20 @@ export function drawTile(
     throw new Error('牌山已空');
   }
 
-  const players = state.players.map(p => ({ ...p }));
-  const tile = state.wall[0];
+  const players = state.players.map(p => ({ 
+    ...p, 
+    hand: [...p.hand],
+  }));
+  const wall = [...state.wall];
+  const tile = wall.shift()!;
 
   players[state.currentPlayerIndex].hand.push(tile);
 
   return {
     ...state,
-    wall: state.wall.slice(1),
+    wall,
     players,
     turnPhase: '等待出牌',
+    lastDrawnTileId: tile.id,
   };
 }

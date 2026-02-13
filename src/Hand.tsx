@@ -36,6 +36,11 @@ export function toRiichiId(tile: GameTile): string {
   if (suit === 'tong') suitCode = 'p';
   if (suit === 'tiao') suitCode = 's';
   if (suit === 'wind' || suit === 'dragon') suitCode = 'z';
+  
+  // 花牌特殊处理
+  if (suit === 'flower') {
+    return `flower-${value}`;
+  }
 
   // honor tiles 风/箭，根据 rank 值映射
   const honorMapping: Record<string, string> = {
@@ -55,6 +60,33 @@ export function toRiichiId(tile: GameTile): string {
   return `${value}${suitCode}`;
 }
 
+// 花牌图片映射
+import flowerImg1 from './assets/Image.jpg';
+import flowerImg2 from './assets/Image (1).jpg';
+import flowerImg3 from './assets/Image (2).jpg';
+import flowerImg4 from './assets/Image (3).jpg';
+import flowerImg5 from './assets/Image (4).jpg';
+import flowerImg6 from './assets/Image (5).jpg';
+import flowerImg7 from './assets/Image (7).jpg';
+import flowerImg8 from './assets/Image (8).jpg';
+
+const flowerImages: Record<string, string> = {
+  spring: flowerImg1,
+  summer: flowerImg2,
+  autumn: flowerImg3,
+  winter: flowerImg4,
+  plum: flowerImg5,
+  orchid: flowerImg6,
+  bamboo: flowerImg7,
+  chrysanthemum: flowerImg8,
+};
+
+// 获取花牌图片
+export function getFlowerImage(id: string): string | undefined {
+  const value = id.replace('flower-', '');
+  return flowerImages[value];
+}
+
 // 根据牌 ID 获取对应的组件
 export function getTileComponent(id: string) {
   return tileComponentMap[id];
@@ -64,10 +96,12 @@ export default function Hand({
   tiles,
   onSelect,
   selectedTileId,
+  highlightedTileId,
 }: {
   tiles: GameTile[];
   onSelect: (tile: GameTile) => void;
   selectedTileId?: string | null;
+  highlightedTileId?: string | null;
 }) {
   // 排序：条、饼、万、字牌（东南西北中发白）
   const suitOrder: Record<string, number> = { tiao: 0, tong: 1, wan: 2, wind: 3, dragon: 3 };
@@ -91,8 +125,10 @@ export default function Hand({
       {sorted.map((tile, idx) => {
         const tileId = toRiichiId(tile);
         const RiichiComponent = getTileComponent(tileId);
+        const flowerImage = tile.suit === 'flower' ? getFlowerImage(tileId) : undefined;
         // console.log(`Tile ${idx}: id=${tile.id}, suit=${tile.suit}, value=${tile.value}, riichiId=${tileId}, component=${RiichiComponent?.name || 'undefined'}`);
         const isSelected = tile.id === selectedTileId;
+        const isHighlighted = tile.id === highlightedTileId;
         const depth = 12;
 
         return (
@@ -114,8 +150,10 @@ export default function Hand({
               display: 'inline-block',
             }}
           >
-            <Tile3D_standing isSelected={isSelected} width={56} height={80} depth={depth}>
-              {RiichiComponent ? (
+            <Tile3D_standing isSelected={isSelected} isHighlighted={isHighlighted} width={56} height={80} depth={depth}>
+              {flowerImage ? (
+                <img src={flowerImage} alt={tile.value as string} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 4 }} />
+              ) : RiichiComponent ? (
                 <RiichiComponent width="100%" height="100%" />
               ) : (
                 <div style={{ color: 'red', fontSize: 12 }}>No component for {tileId}</div>

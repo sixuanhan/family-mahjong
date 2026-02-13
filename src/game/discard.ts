@@ -75,27 +75,28 @@ export function discardTile(
   ];
 
   const hasResponders = allResponders.length > 0;
+  const now = Date.now();
+  const minWaitMs = 2000;  // 至少等待2秒让玩家看牌
+  const responseTimeoutMs = 15000; // 有响应者时15秒超时
 
   return {
     ...state,
     players,
     lastDiscard: { tile, playerId },
-    turnPhase: hasResponders ? '等待响应' : '等待摸牌',
-    currentPlayerIndex: hasResponders
-      ? state.currentPlayerIndex
-      : (state.currentPlayerIndex + 1) % players.length,
-    pendingResponses: hasResponders
-      ? {
-          tile,
-          fromPlayerId: playerId,
-          responders: pengResponders,
-          gangResponders: gangResponders.length > 0 ? gangResponders : undefined,
-          chiResponder,
-          huResponders: huResponders.length > 0 ? huResponders : undefined,
-          responses: Object.fromEntries(
-            allResponders.map(id => [id, 'pending'])
-          ),
-        }
-      : undefined,
+    turnPhase: '等待响应',  // 总是进入等待响应阶段
+    currentPlayerIndex: state.currentPlayerIndex,
+    pendingResponses: {
+      tile,
+      fromPlayerId: playerId,
+      responders: pengResponders,
+      gangResponders: gangResponders.length > 0 ? gangResponders : undefined,
+      chiResponder,
+      huResponders: huResponders.length > 0 ? huResponders : undefined,
+      responses: hasResponders
+        ? Object.fromEntries(allResponders.map(id => [id, 'pending']))
+        : {},  // 没有响应者时为空对象
+      minWaitUntil: now + minWaitMs,
+      responseDeadline: hasResponders ? now + responseTimeoutMs : now + minWaitMs,
+    },
   };
 }
