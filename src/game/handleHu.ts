@@ -29,6 +29,15 @@ export function handleRon(
   const handWithDiscard = [...player.hand, pending.tile];
   player.hand = handWithDiscard;
 
+  // 从打出者的弃牌区移除被胡的牌
+  const fromPlayer = players.find(p => p.id === pending.fromPlayerId);
+  if (fromPlayer) {
+    const discardIdx = fromPlayer.discards.findIndex(t => t.id === pending.tile.id);
+    if (discardIdx !== -1) {
+      fromPlayer.discards.splice(discardIdx, 1);
+    }
+  }
+
   // 计算分数
   const huResult = checkHu(handWithDiscard, player.melds, { isZimo: false });
 

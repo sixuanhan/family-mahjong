@@ -44,6 +44,15 @@ export function handleMingGang(
     fromPlayerId: pending.fromPlayerId,
   });
 
+  // 从打出者的弃牌区移除被杠的牌
+  const fromPlayer = players.find(p => p.id === pending.fromPlayerId);
+  if (fromPlayer) {
+    const discardIdx = fromPlayer.discards.findIndex(t => t.id === pending.tile.id);
+    if (discardIdx !== -1) {
+      fromPlayer.discards.splice(discardIdx, 1);
+    }
+  }
+
   // 杠完需要从牌山补一张牌
   const wall = [...state.wall];
   if (wall.length === 0) {

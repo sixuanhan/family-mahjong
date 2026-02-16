@@ -38,6 +38,15 @@ export function handlePeng(
     fromPlayerId: pending.fromPlayerId,
   });
 
+  // 从打出者的弃牌区移除被碰的牌
+  const fromPlayer = players.find(p => p.id === pending.fromPlayerId);
+  if (fromPlayer) {
+    const discardIdx = fromPlayer.discards.findIndex(t => t.id === pending.tile.id);
+    if (discardIdx !== -1) {
+      fromPlayer.discards.splice(discardIdx, 1);
+    }
+  }
+
   return {
     ...state,
     players,

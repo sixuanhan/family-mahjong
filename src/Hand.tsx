@@ -5,7 +5,7 @@ import {
   RegularTon, RegularNan, RegularShaa, RegularPei, RegularHaku, RegularHatsu, RegularChun,
 } from 'riichi-mahjong-tiles';
 import type { Tile as GameTile } from './types/tile';
-import { Tile3D_standing, type TileDirection } from './Tile3D';
+import { Tile3D_standing, TableTile, type TileDirection } from './Tile3D';
 
 // 麻将牌组件映射表
 export const tileComponentMap: Record<string, React.ComponentType<any>> = {
@@ -172,12 +172,57 @@ export function OtherPlayerHand({
   direction,
   tileWidth = 40,
   tileHeight = 56,
+  tiles,
+  showFace = false,
 }: {
   tileCount: number;
   direction: TileDirection;
   tileWidth?: number;
   tileHeight?: number;
+  tiles?: GameTile[];
+  showFace?: boolean;
 }) {
+  // When showFace is true and tiles are available, render face-up TableTiles
+  if (showFace && tiles && tiles.length > 0) {
+    const suitOrder: Record<string, number> = { tiao: 0, tong: 1, wan: 2, wind: 3, dragon: 3, flower: 5 };
+    const honorOrder = ['east', 'south', 'west', 'north', 'red', 'green', 'white'];
+    const sorted = [...tiles].sort((a, b) => {
+      const sa = suitOrder[a.suit] ?? 4;
+      const sb = suitOrder[b.suit] ?? 4;
+      if (sa !== sb) return sa - sb;
+      if (sa === 3) return honorOrder.indexOf(a.value as string) - honorOrder.indexOf(b.value as string);
+      return (a.value as number) - (b.value as number);
+    });
+
+    const isSideView = direction === 'left' || direction === 'right';
+
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: isSideView ? 'column' : 'row',
+        gap: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexWrap: 'wrap',
+      }}>
+        {sorted.map(tile => {
+          const tileId = toRiichiId(tile);
+          const RiichiComponent = getTileComponent(tileId);
+          const flowerImage = tile.suit === 'flower' ? getFlowerImage(tileId) : undefined;
+          return (
+            <TableTile key={tile.id} width={tileWidth} height={tileHeight} radius={4} direction={direction}>
+              {flowerImage ? (
+                <img src={flowerImage} alt="flower" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 3 }} />
+              ) : RiichiComponent ? (
+                <RiichiComponent width="100%" height="100%" />
+              ) : null}
+            </TableTile>
+          );
+        })}
+      </div>
+    );
+  }
+
   const depth = 8;
   const isSideView = direction === 'left' || direction === 'right';
   // 侧视图使用更大的倾斜度
