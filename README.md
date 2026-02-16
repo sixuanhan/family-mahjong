@@ -17,6 +17,7 @@
 ```bash
 pnpm install
 cd server && pnpm install && cd ..
+pnpm add -D vitest
 ```
 
 ### 2. 启动开发环境
@@ -58,7 +59,22 @@ cd server && pnpm dev
 
 ### 第二步：编译生产版本
 
-在项目根目录，**终端 2** 中执行：
+**终端 2** 中：
+
+```bash
+cloudflared tunnel --url http://localhost:3000
+```
+
+应该可以看到类似
+```
+2026-02-16T23:43:07Z INF |  Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+2026-02-16T23:43:07Z INF |  https://isbn-document-photograph-controversy.trycloudflare.com                            |
+2026-02-16T23:43:07Z INF +--------------------------------------------------------------------------------------------+
+```
+
+在`src/hooks/useGameConnection.ts`中替换网址。
+
+在项目根目录，**终端 3** 中执行：
 
 ```bash
 pnpm build
@@ -66,13 +82,8 @@ pnpm build
 
 这会生成 `dist/` 文件夹。
 
-**终端 3** 中：
 
-```bash
-cloudflared tunnel --url http://localhost:3000
-```
-
-**终端 2** 中开启公网隧道：
+**终端 3** 中开启公网隧道：
 
 ```bash
 wrangler pages deploy dist --project-name=mahjong
