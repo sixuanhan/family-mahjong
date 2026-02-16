@@ -52,11 +52,13 @@ export function checkHu(
   
   // 检查十三幺
   const isShiSanYao = checkShiSanYao(hand, nonFlowerMelds);
+
+  const isZiYiSe = checkZiYiSe(allTiles);
   
   // 检查标准胡牌形式（4面子+1雀头）
   const isStandardHu = checkWinningHand(hand, neededMelds);
   
-  if (!isStandardHu && !isQiDui && !isShiSanYao) {
+  if (!isStandardHu && !isQiDui && !isShiSanYao && !isZiYiSe) {
     return { canHu: false, patterns: [], totalScore: 0 };
   }
   
@@ -65,6 +67,11 @@ export function checkHu(
   // 十三幺 = 100
   if (isShiSanYao) {
     patterns.push({ name: '十三幺', score: 1000 });
+  }
+  
+  // 字一色 = 100
+  if (isZiYiSe) {
+    patterns.push({ name: '字一色', score: 100 });
   }
   
   // 七对 = 50
@@ -79,9 +86,9 @@ export function checkHu(
   
   // ===== 花色番型 =====
   
-  // 字一色 = 200（全部字牌）
-  if (checkZiYiSe(allTiles)) {
-    patterns.push({ name: '字一色', score: 200 });
+  // 风碰 = 300（全部字牌且都是刻子）
+  if (checkFengPeng(hand, nonFlowerMelds)) {
+    patterns.push({ name: '风碰', score: 300 });
   }
   // 清一色 = 50（全部同一门数牌）
   else if (checkQingYiSe(allTiles)) {
@@ -267,10 +274,32 @@ function checkHunYiSe(tiles: Tile[]): boolean {
 }
 
 /**
- * 检查字一色（全部字牌）
+ * 检查字一色（全部字牌，不需要成刻子）
  */
 function checkZiYiSe(tiles: Tile[]): boolean {
   return tiles.every(t => t.suit === 'wind' || t.suit === 'dragon');
+}
+
+/**
+ * 检查风碰（全部字牌且所有副露都是刻子，手牌组成刻子+雀头）
+ */
+function checkFengPeng(hand: Tile[], melds: Meld[]): boolean {
+  // 所有副露必须是碰或杠（非吃）
+  const allMeldsPong = melds.every(m => m.type === 'peng' || m.type === 'gang');
+  if (!allMeldsPong) return false;
+  
+  // 收集所有牌（手牌 + 副露）
+  const allTiles = [...hand];
+  melds.forEach(m => allTiles.push(...m.tiles));
+  
+  // 所有牌都必须是字牌
+  if (!allTiles.every(t => t.suit === 'wind' || t.suit === 'dragon')) {
+    return false;
+  }
+  
+  // 检查手牌是否能组成刻子+雀头
+  const neededPongs = 4 - melds.length;
+  return checkAllPongs(hand, neededPongs);
 }
 
 /**

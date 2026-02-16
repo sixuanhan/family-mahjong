@@ -1,18 +1,21 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
     port: 5173,
     proxy: {
-      // Proxy WebSocket connections to the game server during development
-      '/': {
-        target: 'ws://localhost:3000',
+      '/ws': {
+        target: 'ws://0.0.0.0:3000',
         ws: true,
+        changeOrigin: true,
+        rewrite: (path) => path,
       },
     },
+  },
+  define: {
+    __BACKEND_URL__: JSON.stringify(process.env.BACKEND_URL || 'http://localhost:3000'),
   },
 })

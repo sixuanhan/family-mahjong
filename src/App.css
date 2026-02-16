@@ -1,3 +1,18 @@
+/* App.css */
+
+/* 1. Basic Reset to lock the screen */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Prevents accidental scrolling */
+  background-color: #1a1a1a;
+  /* Prevent the blue highlight box when tapping on mobile */
+  -webkit-tap-highlight-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
 #root {
   width: 100%;
   height: 100%;
@@ -5,6 +20,35 @@
   padding: 0;
 }
 
+/* 2. Prevent text/image selection during intense gameplay */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* 3. Ensure tiles and images stay sharp when scaled */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  pointer-events: none; /* Prevents dragging images */
+}
+
+/* 4. Animations */
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* 5. Custom scrollbar for the Hu Manual table if it gets too long */
+div::-webkit-scrollbar {
+  width: 4px;
+}
+div::-webkit-scrollbar-thumb {
+  background: #555;
+  border-radius: 4px;
+}
+
+/* Existing Vite classes (Optional) */
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -13,39 +57,4 @@
 }
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
 }

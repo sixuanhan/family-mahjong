@@ -30,12 +30,24 @@ function App() {
     isUnmounting.current = false;
 
     connectWebSocket.current = () => {
-      // Derive WS URL from page origin (same host & port)
-      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const host = window.location.host; // includes port if non-standard
+      // 1. Check if we are running on our own computer
+      const isLocal = window.location.hostname === 'localhost';
+
+      // 2. PASTE THE URL FROM TERMINAL C HERE (No https://, no / at the end)
+      const tunnelUrl = 'eternal-exhibits-incurred-partially.trycloudflare.com';
+
+      // 3. Select the host based on where we are
+      const backendHost = isLocal ? 'localhost:3000' : tunnelUrl;
+      
+      // 4. Select wss (secure) for the tunnel, ws for local
+      const protocol = isLocal ? 'ws:' : 'wss:';
+
+      // ... existing code ...
       const storedPlayerId = localStorage.getItem('mahjong-playerId');
       const reconnectParam = storedPlayerId ? `?reconnectId=${storedPlayerId}` : '';
-      const wsUrl = `${protocol}//${host}${reconnectParam}`;
+      
+      // 5. Construct the final URL
+      const wsUrl = `${protocol}//${backendHost}/ws${reconnectParam}`;
 
       console.log(`[Client] Connecting to ${wsUrl} (attempt ${reconnectAttempts.current + 1})`);
       setConnectionStatus(reconnectAttempts.current === 0 ? 'connecting' : 'reconnecting');
@@ -129,7 +141,7 @@ function App() {
     };
 
     updateCountdown();
-    const interval = setInterval(updateCountdown, 100);
+    const interval = setInterval(updateCountdown, 500);
     return () => clearInterval(interval);
   }, [game?.turnPhase, game?.pendingResponses?.responseDeadline]);
 
@@ -356,12 +368,13 @@ function App() {
                 <tr><td>全幺九</td><td style={{ textAlign: 'right' }}>100</td></tr>
                 <tr><td>小三元</td><td style={{ textAlign: 'right' }}>100</td></tr>
                 <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 332</td></tr>
-                <tr><td>字一色</td><td style={{ textAlign: 'right' }}>200</td></tr>
-                <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 需一句话</td></tr>
+                <tr><td>字一色</td><td style={{ textAlign: 'right' }}>100</td></tr>
                 <tr><td>大三元</td><td style={{ textAlign: 'right' }}>200</td></tr>
                 <tr><td>小四喜</td><td style={{ textAlign: 'right' }}>200</td></tr>
                 <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 332</td></tr>
                 <tr><td>大四喜</td><td style={{ textAlign: 'right' }}>300</td></tr>
+                <tr><td>风碰</td><td style={{ textAlign: 'right' }}>300</td></tr>
+                <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 需一句话</td></tr>
                 <tr><td>十三幺</td><td style={{ textAlign: 'right' }}>1000</td></tr>
                 <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 其中一种需2张</td></tr>
               </tbody>
