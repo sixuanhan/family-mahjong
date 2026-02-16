@@ -1,5 +1,6 @@
 // server/index.ts
 import { WebSocket, WebSocketServer } from 'ws';
+import { createServer } from 'http';
 import { createInitialGameState } from '../src/game/initGame.js';
 import { discardTile } from '../src/game/discard.js';
 import { drawTile } from '../src/game/draw.js';
@@ -13,9 +14,68 @@ import { isResponseTimeout, autoPassAll, allResponsesDone, getWinningResponse, e
 import { initCompetition, rollDice, settleScores, nextGame, checkHuangzhuang, handleHuangzhuang, voteRestartGame, voteRestartCompetition } from '../src/game/competition.js';
 import type { GameState } from '../src/game/gameState.js';
 import { randomUUID } from 'crypto';
-import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, unlinkSync, statSync } from 'fs';
+import { join, extname } from 'path';
+import { fileURLToPath } from 'url';
 
-const wss = new WebSocketServer({ host: '0.0.0.0', port: 8080 });
+const PORT = parseInt(process.env.PORT || '3000', 10);
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const DIST_DIR = join(__dirname, '..', 'dist');
+
+// MIME types for static file serving
+const MIME_TYPES: Record<string, string> = {
+  '.html': 'text/html',
+  '.js': 'application/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+};
+
+// HTTP server that serves the built frontend
+const httpServer = createServer((req, res) => {
+  let filePath = join(DIST_DIR, req.url === '/' ? 'index.html' : req.url!);
+
+  // Security: prevent directory traversal
+  if (!filePath.startsWith(DIST_DIR)) {
+    res.writeHead(403);
+    res.end('Forbidden');
+    return;
+  }
+
+  try {
+    // If path is a directory or doesn't exist with extension, try index.html (SPA fallback)
+    let stat;
+    try {
+      stat = statSync(filePath);
+      if (stat.isDirectory()) {
+        filePath = join(filePath, 'index.html');
+        stat = statSync(filePath);
+      }
+    } catch {
+      // File not found — SPA fallback to index.html
+      filePath = join(DIST_DIR, 'index.html');
+      stat = statSync(filePath);
+    }
+
+    const ext = extname(filePath).toLowerCase();
+    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+    const data = readFileSync(filePath);
+
+    res.writeHead(200, { 'Content-Type': contentType });
+    res.end(data);
+  } catch {
+    res.writeHead(404);
+    res.end('Not Found');
+  }
+});
+
+const wss = new WebSocketServer({ server: httpServer });
 
 const SAVE_FILE = './game-state.json';
 
@@ -335,7 +395,9 @@ function broadcast(gameState: GameState) {
   }
 }
 
-console.log('[Server] WebSocket server listening on ws://localhost:8080');
+console.log(`[Server] Listening on http://0.0.0.0:${PORT}`);
+console.log(`[Server] Share this with players: http://<YOUR_IP>:${PORT}`);
+httpServer.listen(PORT, '0.0.0.0');
 
 // 定时检查响应超时（每500ms检查一次）
 setInterval(() => {

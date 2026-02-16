@@ -12,62 +12,93 @@ import { canZimo } from './game/hu';
 
 function App() {
   const ws = useRef<WebSocket | null>(null);
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 20;
+  const isUnmounting = useRef(false);
   const [game, setGame] = useState<GameState | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
   const [showHuManual, setShowHuManual] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected' | 'reconnecting'>('connecting');
+
+  const connectWebSocket = useRef<(() => void) | undefined>(undefined);
 
   useEffect(() => {
-    // 自动检测服务器地址：如果是本地访问用 localhost，否则用当前主机名/IP
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.hostname;
-    
-    // 检查 localStorage 是否有之前的 playerId（用于关闭标签页后重连）
-    const storedPlayerId = localStorage.getItem('mahjong-playerId');
-    const reconnectParam = storedPlayerId ? `?reconnectId=${storedPlayerId}` : '';
-    const wsUrl = `${protocol}//${host}:8080${reconnectParam}`;
-    
-    console.log(`[Client] Connecting to ${wsUrl}`);
-    ws.current = new WebSocket(wsUrl);
+    isUnmounting.current = false;
 
-    ws.current.onopen = () => {
-      console.log('[Client] Connected to server');
+    connectWebSocket.current = () => {
+      // Derive WS URL from page origin (same host & port)
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const host = window.location.host; // includes port if non-standard
+      const storedPlayerId = localStorage.getItem('mahjong-playerId');
+      const reconnectParam = storedPlayerId ? `?reconnectId=${storedPlayerId}` : '';
+      const wsUrl = `${protocol}//${host}${reconnectParam}`;
+
+      console.log(`[Client] Connecting to ${wsUrl} (attempt ${reconnectAttempts.current + 1})`);
+      setConnectionStatus(reconnectAttempts.current === 0 ? 'connecting' : 'reconnecting');
+
+      const socket = new WebSocket(wsUrl);
+      ws.current = socket;
+
+      socket.onopen = () => {
+        console.log('[Client] Connected to server');
+        reconnectAttempts.current = 0;
+        setConnectionStatus('connected');
+      };
+
+      socket.onmessage = (e) => {
+        const msg = JSON.parse(e.data);
+
+        if (msg.type === 'welcome') {
+          setPlayerId(msg.playerId);
+          localStorage.setItem('mahjong-playerId', msg.playerId);
+          setGame(msg.game);
+          return;
+        }
+
+        if (msg.type === 'sync') {
+          setGame(msg.game);
+          return;
+        }
+
+        if (msg.type === 'error') {
+          alert(`Error: ${msg.message}`);
+        }
+      };
+
+      socket.onerror = (err) => {
+        console.error('[Client] WebSocket error:', err);
+      };
+
+      socket.onclose = () => {
+        console.log('[Client] Disconnected from server');
+        if (isUnmounting.current) return;
+
+        if (reconnectAttempts.current < maxReconnectAttempts) {
+          setConnectionStatus('reconnecting');
+          // Exponential backoff: 1s, 2s, 4s, 8s, capped at 10s
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.current), 10000);
+          console.log(`[Client] Reconnecting in ${delay}ms...`);
+          reconnectTimer.current = setTimeout(() => {
+            reconnectAttempts.current++;
+            connectWebSocket.current?.();
+          }, delay);
+        } else {
+          setConnectionStatus('disconnected');
+        }
+      };
     };
 
-    ws.current.onmessage = (e) => {
-      const msg = JSON.parse(e.data);
+    connectWebSocket.current();
 
-      if (msg.type === 'welcome') {
-        // 服务器告诉我：你是谁 + 当前房间状态
-        setPlayerId(msg.playerId);
-        // 存储 playerId 以便关闭标签页后重连
-        localStorage.setItem('mahjong-playerId', msg.playerId);
-        setGame(msg.game);
-        return;
-      }
-
-      if (msg.type === 'sync') {
-        setGame(msg.game);
-        return;
-      }
-
-      if (msg.type === 'error') {
-        alert(`Error: ${msg.message}`);
-      }
+    return () => {
+      isUnmounting.current = true;
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      ws.current?.close();
     };
-
-    ws.current.onerror = (err) => {
-      console.error('[Client] WebSocket error:', err);
-      alert('连接服务器失败，请检查服务器是否运行');
-    };
-
-    ws.current.onclose = () => {
-      console.log('[Client] Disconnected from server');
-    };
-
-    return () => ws.current?.close();
   }, []);
 
   useEffect(() => {
@@ -103,7 +134,21 @@ function App() {
   }, [game?.turnPhase, game?.pendingResponses?.responseDeadline]);
 
   if (!game) {
-    return <div style={{ padding: 20 }}>连接中...</div>;
+    return (
+      <div style={{ padding: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+        {connectionStatus === 'disconnected' ? (
+          <>
+            <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: '50%', background: '#f44336' }} />
+            连接已断开，请刷新页面重试
+          </>
+        ) : (
+          <>
+            <span style={{ display: 'inline-block', width: 10, height: 10, borderRadius: '50%', background: '#ff9800', animation: 'pulse 1.5s infinite' }} />
+            连接中...
+          </>
+        )}
+      </div>
+    );
   }
 
   const sendAction = (action: string, payload: any = {}) => {
@@ -221,6 +266,37 @@ function App() {
         overflow: 'hidden',
       }}
     >
+    {/* Connection status indicator */}
+    {connectionStatus !== 'connected' && (
+      <div style={{
+        position: 'fixed',
+        top: 12,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 8,
+        padding: '8px 16px',
+        borderRadius: 20,
+        background: connectionStatus === 'disconnected' ? 'rgba(244,67,54,0.9)' : 'rgba(255,152,0,0.9)',
+        color: 'white',
+        fontSize: 14,
+        fontWeight: 'bold',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+        backdropFilter: 'blur(4px)',
+      }}>
+        <span style={{
+          display: 'inline-block',
+          width: 10,
+          height: 10,
+          borderRadius: '50%',
+          background: 'white',
+          animation: connectionStatus === 'reconnecting' ? 'pulse 1.5s infinite' : 'none',
+        }} />
+        {connectionStatus === 'reconnecting' ? '重新连接中...' : '连接已断开'}
+      </div>
+    )}
     <div
       style={{
         position: 'relative',

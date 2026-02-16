@@ -7,5 +7,12 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    proxy: {
+      // Proxy WebSocket connections to the game server during development
+      '/': {
+        target: 'ws://localhost:3000',
+        ws: true,
+      },
+    },
   },
 })

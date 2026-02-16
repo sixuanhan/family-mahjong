@@ -21,6 +21,10 @@ export function createInitialGameState(
     currentPlayerIndex: 0,
     turnPhase: '等待摸牌',
     roomPhase: 'playing',
+    playerScores: {},
+    zhuangIndex: 0,
+    gameNumber: 0,
+    huangzhuangCount: 0,
     };
 
   // 第一个玩家自动摸一张牌
