@@ -48,7 +48,7 @@ export function checkHu(
   const neededMelds = 4 - existingMelds;
   
   // 检查七对
-  const isQiDui = checkQiDui(hand);
+  const isQiDui = checkQiDui(hand, nonFlowerMelds);
   
   // 检查十三幺
   const isShiSanYao = checkShiSanYao(hand, nonFlowerMelds);
@@ -169,13 +169,20 @@ export function checkHu(
 // ===== 番型检查辅助函数 =====
 
 /**
- * 检查七对（7对牌，14张手牌无副露）
+ * 检查七对（7对牌，允许暗杠，暗杠算2对）
  */
-function checkQiDui(hand: Tile[]): boolean {
-  if (hand.length !== 14) return false;
-  
+function checkQiDui(hand: Tile[], melds: Meld[]): boolean {
+  // 只允许暗杠（无 fromPlayerId 的杠），其他副露不行
+  const angangCount = melds.filter(m => m.type === 'gang' && !m.fromPlayerId).length;
+  if (melds.length !== angangCount) return false;
+
+  // 7对 = 手牌对子 + 暗杠（每个暗杠算2对）
+  const remainingPairs = 7 - 2 * angangCount;
+  if (remainingPairs < 0) return false;
+  if (hand.length !== remainingPairs * 2) return false;
+
   const sorted = sortTiles(hand);
-  for (let i = 0; i < 14; i += 2) {
+  for (let i = 0; i < sorted.length; i += 2) {
     if (!isSameTile(sorted[i], sorted[i + 1])) {
       return false;
     }
