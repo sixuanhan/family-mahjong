@@ -4,13 +4,11 @@
 html, body {
   margin: 0;
   padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden; /* Prevents accidental scrolling */
+  /* Allow scrolling so they can pan around the board */
+  overflow: auto !important; 
   background-color: #1a1a1a;
-  /* Prevent the blue highlight box when tapping on mobile */
-  -webkit-tap-highlight-color: transparent;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  width: auto; 
+  height: auto;
 }
 
 #root {

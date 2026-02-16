@@ -266,16 +266,13 @@ function App() {
   return (
     <div
       style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        background: '#1a1a1a',
-        overflow: 'hidden',
+        minWidth: 1400, 
+      minHeight: 900,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      background: '#1a1a1a',
+      padding: '40px',
       }}
     >
     {/* Connection status indicator */}
@@ -316,9 +313,8 @@ function App() {
         height: 900,
         background: '#2e7d32',
         borderRadius: 16,
-        boxShadow: 'inset 0 0 20px rgba(0,0,0,0.4)',
+        boxShadow: '0 0 20px rgba(0,0,0,0.5)',
         flexShrink: 0,
-        overflow: 'hidden',
       }}
     >
       {/* ===== 胡牌说明手册 ===== */}
