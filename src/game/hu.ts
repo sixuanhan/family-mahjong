@@ -29,7 +29,6 @@ export function checkHu(
   melds: Meld[],
   options: {
     isZimo?: boolean;       // 是否自摸
-    isLastTile?: boolean;   // 是否海底/河底
     consecutiveKongs?: number; // 连续杠的次数（用于杠上开花翻倍）
   } = {}
 ): HuResult {
@@ -79,8 +78,8 @@ export function checkHu(
     patterns.push({ name: '七对', score: 50 });
   }
   
-  // 全球独钓 = 50
-  if (options.isLastTile) {
+  // 全球独钓 = 50（手中只剩一对，4组副露）
+  if (hand.length === 2 && nonFlowerMelds.length === 4) {
     patterns.push({ name: '全球独钓', score: 50 });
   }
   

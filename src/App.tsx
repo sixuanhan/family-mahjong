@@ -150,7 +150,7 @@ function App() {
           </div>
 
           {/* 我的弃牌 */}
-          <div style={{ position: 'absolute', top: 0, left: 400, width: 600 }}>
+          <div style={{ position: 'absolute', top: -60, left: 400, width: 600 }}>
             <DiscardArea tiles={me.discards} direction="bottom" highlightedTileId={highlightedPlayerId === me.id ? highlightedTileId : undefined} />
           </div>
 

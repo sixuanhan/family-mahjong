@@ -76,7 +76,7 @@ describe('checkHu', () => {
       expectExact(checkHu(hand, melds), false, [], 0);
     });
 
-    it('4 chi melds + pair in hand', () => {
+    it('4 chi melds + pair in hand → 全球独钓', () => {
       const hand = [w(5), w(5)];
       const melds = [
         meld('chi', [w(1), w(2), w(3)], 'other'),
@@ -84,7 +84,7 @@ describe('checkHu', () => {
         meld('chi', [s(7), s(8), s(9)], 'other'),
         meld('chi', [b(1), b(2), b(3)], 'other'),
       ];
-      expectExact(checkHu(hand, melds), false, [], 0);
+      expectExact(checkHu(hand, melds), true, ['全球独钓'], 50);
     });
   });
 
@@ -624,6 +624,18 @@ describe('checkHu', () => {
   // ==================== 全球独钓 (Last Tile, 50) ====================
 
   describe('全球独钓', () => {
+    it('1 tile in hand + 4 melds → 全球独钓(50)', () => {
+        // Only a pair in hand (1 tile + drawn winning tile), 4 exposed melds
+        const hand = [w(5), w(5)];
+        const melds = [
+            meld('peng', [w(1), w(1), w(1)], 'other'),
+            meld('chi', [b(3), b(4), b(5)], 'other'),
+            meld('gang', [s(7), s(7), s(7), s(7)], 'other'),
+            meld('chi', [s(3), s(4), s(5)], 'other'),
+        ];
+        expectExact(checkHu(hand, melds), true, ['全球独钓'], 50);
+    });
+
     it('1 tile in hand + 4 melds → 对对胡(30) + 全球独钓(50) = 80', () => {
       // Only a pair in hand (1 tile + drawn winning tile), 4 exposed melds
       const hand = [dragon('red'), dragon('red')];
@@ -633,7 +645,7 @@ describe('checkHu', () => {
         meld('peng', [s(7), s(7), s(7)], 'other'),
         meld('peng', [w(9), w(9), w(9)], 'other'),
       ];
-      expectExact(checkHu(hand, melds, { isLastTile: true }), true, ['对对胡', '全球独钓'], 80);
+      expectExact(checkHu(hand, melds), true, ['对对胡', '全球独钓'], 80);
     });
 
     it('stacks with 清一色 + 对对胡 — 50 + 30 + 50 = 130', () => {
@@ -644,7 +656,7 @@ describe('checkHu', () => {
         meld('peng', [w(7), w(7), w(7)], 'other'),
         meld('gang', [w(9), w(9), w(9), w(9)], 'other'),
       ];
-      expectExact(checkHu(hand, melds, { isLastTile: true }), true, ['清一色', '对对胡', '全球独钓'], 130);
+      expectExact(checkHu(hand, melds), true, ['清一色', '对对胡', '全球独钓'], 130);
     });
   });
 
@@ -814,7 +826,7 @@ describe('checkHu', () => {
   // ==================== Edge Cases ====================
 
   describe('edge cases', () => {
-    it('only pair in hand with 4 peng/gang melds → 对对胡 + 混一色', () => {
+    it('only pair in hand with 4 peng/gang melds → 对对胡 + 混一色 + 全球独钓', () => {
       const hand = [dragon('white'), dragon('white')];
       const melds = [
         meld('peng', [w(1), w(1), w(1)], 'other'),
@@ -826,7 +838,8 @@ describe('checkHu', () => {
       expect(result.canHu).toBe(true);
       expect(result.patterns.some(p => p.name === '对对胡')).toBe(true);
       expect(result.patterns.some(p => p.name === '混一色')).toBe(true);
-      expect(result.totalScore).toBe(60);
+      expect(result.patterns.some(p => p.name === '全球独钓')).toBe(true);
+      expect(result.totalScore).toBe(110);
     });
 
     it('hand parseable as both 七对 and standard hu prefers higher score', () => {
