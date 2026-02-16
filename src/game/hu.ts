@@ -50,23 +50,31 @@ export function checkHu(
   // 检查七对
   const isQiDui = checkQiDui(hand);
   
+  // 检查十三幺
+  const isShiSanYao = checkShiSanYao(hand, nonFlowerMelds);
+  
   // 检查标准胡牌形式（4面子+1雀头）
   const isStandardHu = checkWinningHand(hand, neededMelds);
   
-  if (!isStandardHu && !isQiDui) {
+  if (!isStandardHu && !isQiDui && !isShiSanYao) {
     return { canHu: false, patterns: [], totalScore: 0 };
   }
   
   // ===== 特殊牌型 =====
+  
+  // 十三幺 = 100
+  if (isShiSanYao) {
+    patterns.push({ name: '十三幺', score: 1000 });
+  }
   
   // 七对 = 50
   if (isQiDui) {
     patterns.push({ name: '七对', score: 50 });
   }
   
-  // 海底捞月 = 50
+  // 全球独钓 = 50
   if (options.isLastTile) {
-    patterns.push({ name: '海底捞月', score: 50 });
+    patterns.push({ name: '全球独钓', score: 50 });
   }
   
   // ===== 花色番型 =====
@@ -92,9 +100,9 @@ export function checkHu(
       patterns.push({ name: '对对胡', score: 30 });
     }
     
-    // 全带幺 = 100（所有面子和雀头都带1或9或字牌）
+    // 全幺九 = 100（所有面子和雀头都带1或9或字牌）
     if (checkQuanDaiYao(hand, nonFlowerMelds)) {
-      patterns.push({ name: '全带幺', score: 100 });
+      patterns.push({ name: '全幺九', score: 100 });
     }
   }
   
@@ -105,11 +113,19 @@ export function checkHu(
   if (dragonResult.daSanYuan) {
     patterns.push({ name: '大三元', score: 200 });
   }
+  // 小三元 = 100
+  else if (dragonResult.xiaoSanYuan) {
+    patterns.push({ name: '小三元', score: 100 });
+  }
   
   // 大四喜 = 300
   const windResult = checkSiXi(hand, nonFlowerMelds);
   if (windResult.daSiXi) {
     patterns.push({ name: '大四喜', score: 300 });
+  }
+  // 小四喜 = 200
+  else if (windResult.xiaoSiXi) {
+    patterns.push({ name: '小四喜', score: 200 });
   }
   
   // 平胡 = 10（仅门前清时可用）
@@ -158,6 +174,63 @@ function checkQiDui(hand: Tile[]): boolean {
     }
   }
   return true;
+}
+
+/**
+ * 检查十三幺（13种幺九字牌，每种至少1张，其中1种2张作为雀头）
+ */
+function checkShiSanYao(hand: Tile[], melds: Meld[]): boolean {
+  // 十三幺不能有副露
+  if (melds.length > 0) return false;
+  
+  // 必须恰好14张手牌
+  if (hand.length !== 14) return false;
+  
+  // 13种幺九字牌
+  const yaoJiuTiles = [
+    { suit: 'wan' as const, value: 1 },
+    { suit: 'wan' as const, value: 9 },
+    { suit: 'tong' as const, value: 1 },
+    { suit: 'tong' as const, value: 9 },
+    { suit: 'tiao' as const, value: 1 },
+    { suit: 'tiao' as const, value: 9 },
+    { suit: 'wind' as const, value: 'east' as const },
+    { suit: 'wind' as const, value: 'south' as const },
+    { suit: 'wind' as const, value: 'west' as const },
+    { suit: 'wind' as const, value: 'north' as const },
+    { suit: 'dragon' as const, value: 'red' as const },
+    { suit: 'dragon' as const, value: 'green' as const },
+    { suit: 'dragon' as const, value: 'white' as const },
+  ];
+  
+  // 计数每种幺九字牌
+  const counts: Record<string, number> = {};
+  for (const yao of yaoJiuTiles) {
+    const key = `${yao.suit}-${yao.value}`;
+    counts[key] = 0;
+  }
+  
+  // 统计手牌
+  for (const tile of hand) {
+    const key = `${tile.suit}-${tile.value}`;
+    if (counts.hasOwnProperty(key)) {
+      counts[key]++;
+    } else {
+      // 包含非幺九字的牌，不符合十三幺
+      return false;
+    }
+  }
+  
+  // 检查：13种都至少1张，其中至少1种2张（作为雀头）
+  let pairCount = 0;
+  for (const key in counts) {
+    if (counts[key] === 0) return false; // 缺少某种幺九字
+    if (counts[key] === 2) pairCount++;
+    if (counts[key] > 2) return false; // 某种超过2张
+  }
+  
+  // 必须恰好1对作为雀头
+  return pairCount === 1;
 }
 
 /**
@@ -262,7 +335,7 @@ function canFormAllPongs(tiles: Tile[], count: number): boolean {
 }
 
 /**
- * 检查全带幺（所有面子和雀头都带1或9或字牌）
+ * 检查全幺九（所有面子和雀头都带1或9或字牌）
  */
 function checkQuanDaiYao(hand: Tile[], melds: Meld[]): boolean {
   // 检查副露
@@ -335,7 +408,7 @@ function checkHandAllYao(hand: Tile[], neededMelds: number): boolean {
 }
 
 /**
- * 检查能否组成全带幺的面子
+ * 检查能否组成全幺九的面子
  */
 function canFormYaoMelds(tiles: Tile[], count: number): boolean {
   if (tiles.length === 0 && count === 0) return true;

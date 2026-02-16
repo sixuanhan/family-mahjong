@@ -276,11 +276,18 @@ function App() {
                 <tr><td>混一色</td><td style={{ textAlign: 'right' }}>30</td></tr>
                 <tr><td>七对</td><td style={{ textAlign: 'right' }}>50</td></tr>
                 <tr><td>清一色</td><td style={{ textAlign: 'right' }}>50</td></tr>
-                <tr><td>海底捞月</td><td style={{ textAlign: 'right' }}>50</td></tr>
-                <tr><td>全带幺</td><td style={{ textAlign: 'right' }}>100</td></tr>
+                <tr><td>全球独钓</td><td style={{ textAlign: 'right' }}>50</td></tr>
+                <tr><td>全幺九</td><td style={{ textAlign: 'right' }}>100</td></tr>
+                <tr><td>小三元</td><td style={{ textAlign: 'right' }}>100</td></tr>
+                <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 332</td></tr>
                 <tr><td>字一色</td><td style={{ textAlign: 'right' }}>200</td></tr>
+                <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 需一句话</td></tr>
                 <tr><td>大三元</td><td style={{ textAlign: 'right' }}>200</td></tr>
+                <tr><td>小四喜</td><td style={{ textAlign: 'right' }}>200</td></tr>
+                <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 332</td></tr>
                 <tr><td>大四喜</td><td style={{ textAlign: 'right' }}>300</td></tr>
+                <tr><td>十三幺</td><td style={{ textAlign: 'right' }}>1000</td></tr>
+                <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 其中一种需2张</td></tr>
               </tbody>
             </table>
             <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid #555', fontSize: 11, color: '#aaa' }}>
