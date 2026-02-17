@@ -56,9 +56,10 @@ export interface GameState {
   competitionWinner?: string;           // 比赛获胜者ID
   isHuangzhuang?: boolean;              // 本局是否荒庄
 
-  // 重开投票
+  // 投票
   restartGameVotes?: string[];          // 想重开本局的玩家ID
   restartCompetitionVotes?: string[];   // 想重开比赛的玩家ID
+  nextGameVotes?: string[];             // 投票下一局的玩家ID
 
   lastDiscard?: {
     tile: Tile;

@@ -77,7 +77,7 @@ export function discardTile(
   const hasResponders = allResponders.length > 0;
   const now = Date.now();
   const minWaitMs = 2000;  // 至少等待2秒让玩家看牌
-  const responseTimeoutMs = 15000; // 有响应者时15秒超时
+  const responseTimeoutMs = 20000; // 有响应者时20秒超时
 
   return {
     ...state,

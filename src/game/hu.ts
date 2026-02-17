@@ -36,7 +36,7 @@ export function checkHu(
   
   // 花牌不算副露，门前清检查时排除花牌
   const nonFlowerMelds = melds.filter(m => m.type !== 'flower');
-  const isMenqing = nonFlowerMelds.length === 0; // 门前清 = 无副露（花牌不算）
+  const isMenqing = nonFlowerMelds.every(m => m.type === 'gang' && !m.fromPlayerId); // 门前清 = 无副露（花牌和暗杠不算）
   
   // 收集所有牌（手牌 + 副露，不含花牌）
   const allTiles = [...hand];
@@ -728,6 +728,9 @@ export function canZimo(
 ): boolean {
   const player = state.players.find(p => p.id === playerId);
   if (!player) return false;
+
+  // 自摸仅在摸牌后可用，吃/碰后不能自摸
+  if (!state.lastDrawnTileId) return false;
 
   // 使用 checkHu 检查是否能胡（会检查番型要求）
   const result = checkHu(player.hand, player.melds, { isZimo: true });

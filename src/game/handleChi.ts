@@ -112,5 +112,6 @@ export function handleChi(
     turnPhase: '等待出牌',
     pendingResponses: undefined,
     lastDiscard: undefined,
+    lastDrawnTileId: undefined,
   };
 }

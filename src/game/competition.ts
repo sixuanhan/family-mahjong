@@ -126,6 +126,7 @@ export function startGame(state: GameState): GameState {
     winner: undefined,
     scoreChanges: undefined,
     isHuangzhuang: undefined,
+    nextGameVotes: undefined,
   };
 
   // 庄家自动摸一张牌
@@ -239,19 +240,36 @@ export function settleScores(state: GameState): GameState {
 }
 
 /**
- * 开始下一局
+ * 投票开始下一局（所有玩家同意后才开始）
  */
-export function nextGame(state: GameState): GameState {
+export function voteNextGame(state: GameState, playerId: string): GameState {
   if (state.roomPhase !== 'settling') {
     throw new Error('当前不能开始下一局');
   }
 
-  return startGame({
+  const votes = state.nextGameVotes || [];
+
+  // 切换投票状态
+  const hasVoted = votes.includes(playerId);
+  const newVotes = hasVoted
+    ? votes.filter(id => id !== playerId)
+    : [...votes, playerId];
+
+  // 检查是否所有玩家都同意
+  if (newVotes.length === state.players.length) {
+    return startGame({
+      ...state,
+      gameNumber: state.gameNumber + 1,
+      diceRolls: undefined,
+      scoreChanges: undefined,
+      nextGameVotes: undefined,
+    });
+  }
+
+  return {
     ...state,
-    gameNumber: state.gameNumber + 1,
-    diceRolls: undefined,
-    scoreChanges: undefined,
-  });
+    nextGameVotes: newVotes,
+  };
 }
 
 /**
@@ -296,6 +314,7 @@ export function voteRestartGame(state: GameState, playerId: string): GameState {
       ...state,
       restartGameVotes: undefined,
       restartCompetitionVotes: undefined,
+      nextGameVotes: undefined,
     });
   }
   
@@ -324,6 +343,7 @@ export function voteRestartCompetition(state: GameState, playerId: string): Game
       ...state,
       restartGameVotes: undefined,
       restartCompetitionVotes: undefined,
+      nextGameVotes: undefined,
     });
   }
   

@@ -37,6 +37,12 @@ img {
   100% { opacity: 1; transform: scale(1); }
 }
 
+@keyframes activePlayerGlow {
+  0%   { background-color: rgba(46, 125, 50, 0.6); }
+  50%  { background-color: rgba(30, 90, 160, 0.6); }
+  100% { background-color: rgba(46, 125, 50, 0.6); }
+}
+
 /* 5. Custom scrollbar for the Hu Manual table if it gets too long */
 div::-webkit-scrollbar {
   width: 4px;

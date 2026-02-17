@@ -11,7 +11,7 @@ import { handleRon, handleZimo } from '../src/game/handleHu.js';
 import { handleFlower } from '../src/game/handleFlower.js';
 import { passResponse } from '../src/game/passResponse.js';
 import { isResponseTimeout, autoPassAll, allResponsesDone, getWinningResponse, endResponsePhase } from '../src/game/resolveResponse.js';
-import { initCompetition, rollDice, settleScores, nextGame, checkHuangzhuang, handleHuangzhuang, voteRestartGame, voteRestartCompetition } from '../src/game/competition.js';
+import { initCompetition, rollDice, settleScores, voteNextGame, checkHuangzhuang, handleHuangzhuang, voteRestartGame, voteRestartCompetition } from '../src/game/competition.js';
 import type { GameState } from '../src/game/gameState.js';
 import { randomUUID } from 'crypto';
 import { readFileSync, writeFileSync, existsSync, unlinkSync, statSync } from 'fs';
@@ -246,7 +246,7 @@ wss.on('connection', (ws, req) => {
 
         case 'nextGame': {
             if (game.roomPhase !== 'settling') return;
-            game = nextGame(game);
+            game = voteNextGame(game, playerId);
             if (game) broadcast(game);
             break;
         }

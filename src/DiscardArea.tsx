@@ -76,6 +76,7 @@ export default function DiscardArea({
           gap: 0,
           justifyContent: 'start',
           alignContent: 'start',
+          direction: direction === 'top' ? 'rtl' : 'ltr',
           minHeight: (tileHeight + 4) * 2,
         }}
       >

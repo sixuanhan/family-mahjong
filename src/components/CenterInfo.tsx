@@ -63,12 +63,12 @@ export function CenterInfo({ game, playerId, sendAction }: Props) {
 
       {/* 结算阶段 - 荒庄 */}
       {game.roomPhase === 'settling' && game.isHuangzhuang && (
-        <HuangzhuangSettlement game={game} sendAction={sendAction} />
+        <HuangzhuangSettlement game={game} playerId={playerId} sendAction={sendAction} />
       )}
 
       {/* 结算阶段 - 有人胡牌 */}
       {game.roomPhase === 'settling' && game.winner && (
-        <WinnerSettlement game={game} sendAction={sendAction} />
+        <WinnerSettlement game={game} playerId={playerId} sendAction={sendAction} />
       )}
 
       {/* 游戏进行中 */}
@@ -223,7 +223,7 @@ function ScoreSummary({ game }: { game: GameState }) {
   );
 }
 
-function HuangzhuangSettlement({ game, sendAction }: { game: GameState; sendAction: Props['sendAction'] }) {
+function HuangzhuangSettlement({ game, playerId, sendAction }: { game: GameState; playerId: string; sendAction: Props['sendAction'] }) {
   return (
     <div style={{
       background: 'rgba(0,0,0,0.8)',
@@ -253,17 +253,12 @@ function HuangzhuangSettlement({ game, sendAction }: { game: GameState; sendActi
       </div>
       <p style={{ marginBottom: 8, color: '#aaa' }}>庄家不变</p>
       <ScoreSummary game={game} />
-      <button
-        onClick={() => sendAction('nextGame')}
-        style={{ marginTop: 16, padding: '8px 24px', fontSize: 16 }}
-      >
-        下一局
-      </button>
+      <NextGameButton game={game} playerId={playerId} sendAction={sendAction} />
     </div>
   );
 }
 
-function WinnerSettlement({ game, sendAction }: { game: GameState; sendAction: Props['sendAction'] }) {
+function WinnerSettlement({ game, playerId, sendAction }: { game: GameState; playerId: string; sendAction: Props['sendAction'] }) {
   const winner = game.winner!;
   return (
     <div style={{
@@ -308,12 +303,38 @@ function WinnerSettlement({ game, sendAction }: { game: GameState; sendAction: P
         ))}
       </div>
       <ScoreSummary game={game} />
+      <NextGameButton game={game} playerId={playerId} sendAction={sendAction} />
+    </div>
+  );
+}
+
+function NextGameButton({ game, playerId, sendAction }: { game: GameState; playerId: string; sendAction: Props['sendAction'] }) {
+  const hasVoted = game.nextGameVotes?.includes(playerId) ?? false;
+  const voteCount = game.nextGameVotes?.length ?? 0;
+
+  return (
+    <div style={{ marginTop: 16, textAlign: 'center' }}>
       <button
         onClick={() => sendAction('nextGame')}
-        style={{ marginTop: 16, padding: '8px 24px', fontSize: 16 }}
+        style={{
+          padding: '8px 24px',
+          fontSize: 16,
+          background: hasVoted ? '#ff9900' : undefined,
+          color: hasVoted ? 'white' : undefined,
+          border: hasVoted ? 'none' : undefined,
+          borderRadius: 4,
+          cursor: 'pointer',
+        }}
       >
-        下一局
+        下一局 {voteCount}/{game.players.length}
       </button>
+      {voteCount > 0 && (
+        <div style={{ fontSize: 10, color: '#ddd', marginTop: 4 }}>
+          {game.nextGameVotes!.map(id =>
+            game.players.find(p => p.id === id)?.name
+          ).join(', ')}
+        </div>
+      )}
     </div>
   );
 }
