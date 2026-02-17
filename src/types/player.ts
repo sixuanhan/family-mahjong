@@ -14,4 +14,5 @@ export interface Player {
   discards: Tile[];
   isReady: boolean;
   isOnline: boolean;
+  passedHuTiles?: { suit: string; value: string | number }[]; // 过水：跳过胡的牌，下次摸牌前不能胡同样的牌
 }

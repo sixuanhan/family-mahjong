@@ -71,14 +71,34 @@ export function autoPassAll(state: GameState): GameState {
   if (!pending) return state;
 
   const responses = { ...pending.responses };
+  const timedOutHuPlayers: string[] = [];
   for (const playerId of Object.keys(responses)) {
     if (responses[playerId] === 'pending') {
       responses[playerId] = 'pass';
+      // 记录超时的胡资格玩家（过水）
+      if (pending.huResponders?.includes(playerId)) {
+        timedOutHuPlayers.push(playerId);
+      }
     }
+  }
+
+  // 为超时的胡资格玩家记录过水
+  let players = state.players;
+  if (timedOutHuPlayers.length > 0) {
+    const tile = pending.tile;
+    players = players.map(p => {
+      if (!timedOutHuPlayers.includes(p.id)) return p;
+      const passedHuTiles = [...(p.passedHuTiles || [])];
+      if (!passedHuTiles.some(pt => pt.suit === tile.suit && pt.value === tile.value)) {
+        passedHuTiles.push({ suit: tile.suit, value: tile.value });
+      }
+      return { ...p, passedHuTiles };
+    });
   }
 
   return {
     ...state,
+    players,
     pendingResponses: {
       ...pending,
       responses,

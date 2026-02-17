@@ -28,8 +28,24 @@ export function passResponse(
     [playerId]: 'pass' as const,
   };
 
+  // 过水规则：如果该玩家有胡的资格但选择了过，记录这张牌
+  let players = state.players;
+  if (pending.huResponders?.includes(playerId)) {
+    players = players.map(p => {
+      if (p.id !== playerId) return p;
+      const passedHuTiles = [...(p.passedHuTiles || [])];
+      const tile = pending.tile;
+      // 避免重复记录同一种牌
+      if (!passedHuTiles.some(pt => pt.suit === tile.suit && pt.value === tile.value)) {
+        passedHuTiles.push({ suit: tile.suit, value: tile.value });
+      }
+      return { ...p, passedHuTiles };
+    });
+  }
+
   const newState = {
     ...state,
+    players,
     pendingResponses: {
       ...pending,
       responses,

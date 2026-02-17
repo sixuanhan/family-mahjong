@@ -29,6 +29,14 @@ export function drawTile(
 
   players[state.currentPlayerIndex].hand.push(tile);
 
+  // 摸牌时清除过水记录（新一轮可以重新胡同样的牌）
+  if (players[state.currentPlayerIndex].passedHuTiles) {
+    players[state.currentPlayerIndex] = {
+      ...players[state.currentPlayerIndex],
+      passedHuTiles: undefined,
+    };
+  }
+
   return {
     ...state,
     wall,

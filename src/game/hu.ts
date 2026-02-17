@@ -703,8 +703,16 @@ export function canRon(
   // 不能荣自己打的牌
   if (state.lastDiscard.playerId === playerId) return false;
 
+  // 过水规则：如果之前跳过了胡同样的牌，不能再胡
+  const discardTile = state.lastDiscard.tile;
+  if (player.passedHuTiles?.some(
+    pt => pt.suit === discardTile.suit && pt.value === discardTile.value
+  )) {
+    return false;
+  }
+
   // 手牌 + 弃牌组成完整手牌
-  const handWithDiscard = [...player.hand, state.lastDiscard.tile];
+  const handWithDiscard = [...player.hand, discardTile];
 
   // 使用 checkHu 检查是否能胡（会检查番型要求）
   const result = checkHu(handWithDiscard, player.melds, { isZimo: false });
