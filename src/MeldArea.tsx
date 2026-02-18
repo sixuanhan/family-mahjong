@@ -1,6 +1,7 @@
 import { TableTile, type TileDirection } from './Tile3D';
 import type { Meld } from './types/player'
 import { toRiichiId, getTileComponent, getFlowerImage } from './Hand';
+import { useTileHover } from './hooks/useTileHover';
 
 // 花牌组件
 function FlowerTile({ imageSrc }: { imageSrc: string }) {
@@ -25,6 +26,7 @@ export function MeldArea({
   melds: Meld[];
   direction?: TileDirection;
 }) {
+  const { isSameTile, tileHoverProps } = useTileHover();
   if (!melds || melds.length === 0) return null;
 
   const isSideView = direction === 'left' || direction === 'right';
@@ -63,15 +65,17 @@ export function MeldArea({
               const flowerImg = isFlower ? getFlowerImage(riichiId) : undefined;
               
               return (
-                <TableTile key={tile.id} direction={direction}>
-                  {isFlower && flowerImg ? (
-                    <FlowerTile imageSrc={flowerImg} />
-                  ) : TileComponent ? (
-                    <TileComponent width="100%" height="100%" />
-                  ) : (
-                    <div>?</div>
-                  )}
-                </TableTile>
+                <div key={tile.id} className={isSameTile(tile) ? 'tile-hover-highlight' : undefined} {...tileHoverProps(tile)}>
+                  <TableTile direction={direction}>
+                    {isFlower && flowerImg ? (
+                      <FlowerTile imageSrc={flowerImg} />
+                    ) : TileComponent ? (
+                      <TileComponent width="100%" height="100%" />
+                    ) : (
+                      <div>?</div>
+                    )}
+                  </TableTile>
+                </div>
               );
             })}
           </div>

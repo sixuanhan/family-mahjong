@@ -10,6 +10,7 @@ import { HuManual } from './components/HuManual';
 import { VoteButtons } from './components/VoteButtons';
 import { CenterInfo } from './components/CenterInfo';
 import { ActionButtons } from './components/ActionButtons';
+import { TileHoverProvider } from './hooks/useTileHover';
 
 function App() {
   const { game, playerId, connectionStatus, sendAction } = useGameConnection();
@@ -73,6 +74,7 @@ function App() {
   const isMyTurnToDiscard = game.turnPhase === '等待出牌' && game.players[game.currentPlayerIndex]?.id === me.id;
 
   return (
+    <TileHoverProvider>
     <div style={{ minWidth: 1400, minHeight: 900, display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#1a1a1a', padding: '40px' }}>
       <ConnectionStatus status={connectionStatus} />
       <div style={{ position: 'relative', width: 1400, height: 900, background: '#2e7d32', borderRadius: 16, boxShadow: '0 0 20px rgba(0,0,0,0.5)', flexShrink: 0, ...(isMyTurnToDiscard ? { animation: 'activePlayerGlow 2s ease-in-out infinite' } : {}) }}>
@@ -180,6 +182,7 @@ function App() {
         </div>
       </div>
     </div>
+    </TileHoverProvider>
   );
 }
 

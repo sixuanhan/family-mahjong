@@ -1,6 +1,7 @@
 import type { Tile } from './types/tile';
 import { toRiichiId, getTileComponent } from './Hand';
 import { TableTile, type TileDirection } from './Tile3D';
+import { useTileHover } from './hooks/useTileHover';
 
 export default function DiscardArea({ 
   tiles, 
@@ -11,6 +12,7 @@ export default function DiscardArea({
   direction?: TileDirection;
   highlightedTileId?: string;
 }) {
+  const { isSameTile, tileHoverProps } = useTileHover();
   const tileWidth = 40;
   const tileHeight = 56;
   const columns = 12;
@@ -47,6 +49,8 @@ export default function DiscardArea({
           return (
             <div
               key={tile.id}
+              className={isSameTile(tile) ? 'tile-hover-highlight' : undefined}
+              {...tileHoverProps(tile)}
               style={{
                 transform: direction === 'right' ? 'scaleY(-1)' : 'none',
               }}
@@ -86,11 +90,13 @@ export default function DiscardArea({
           const isHighlighted = tile.id === highlightedTileId;
 
           return (
-            <TableTile key={tile.id} width={tileWidth} height={tileHeight} direction={direction} isHighlighted={isHighlighted}>
-              {RiichiComponent && (
-                <RiichiComponent width="100%" height="100%" />
-              )}
-            </TableTile>
+            <div key={tile.id} className={isSameTile(tile) ? 'tile-hover-highlight' : undefined} {...tileHoverProps(tile)}>
+              <TableTile width={tileWidth} height={tileHeight} direction={direction} isHighlighted={isHighlighted}>
+                {RiichiComponent && (
+                  <RiichiComponent width="100%" height="100%" />
+                )}
+              </TableTile>
+            </div>
           );
         })}
       </div>

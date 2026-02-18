@@ -6,6 +6,7 @@ import {
 } from 'riichi-mahjong-tiles';
 import type { Tile as GameTile } from './types/tile';
 import { Tile3D_standing, TableTile, type TileDirection } from './Tile3D';
+import { useTileHover } from './hooks/useTileHover';
 
 // 麻将牌组件映射表
 export const tileComponentMap: Record<string, React.ComponentType<any>> = {
@@ -103,6 +104,7 @@ export default function Hand({
   selectedTileId?: string | null;
   highlightedTileId?: string | null;
 }) {
+  const { isSameTile, onTileHoverStart, onTileHoverEnd, tileHoverProps } = useTileHover();
   // 排序：条、饼、万、字牌（东南西北中发白）
   const suitOrder: Record<string, number> = { tiao: 0, tong: 1, wan: 2, wind: 3, dragon: 3 };
   const honorOrder = ['east', 'south', 'west', 'north', 'red', 'green', 'white'];
@@ -126,21 +128,29 @@ export default function Hand({
         const tileId = toRiichiId(tile);
         const RiichiComponent = getTileComponent(tileId);
         const flowerImage = tile.suit === 'flower' ? getFlowerImage(tileId) : undefined;
-        // console.log(`Tile ${idx}: id=${tile.id}, suit=${tile.suit}, value=${tile.value}, riichiId=${tileId}, component=${RiichiComponent?.name || 'undefined'}`);
         const isSelected = tile.id === selectedTileId;
         const isHighlighted = tile.id === highlightedTileId;
+        const isSameHovered = isSameTile(tile);
         const depth = 12;
+
+        const hoverProps = tileHoverProps(tile);
 
         return (
           <div
             key={tile.id}
+            className={isSameHovered ? 'tile-hover-highlight' : undefined}
             onClick={() => onSelect(tile)}
             onMouseEnter={(e) => {
+              onTileHoverStart(tile);
               if (!isSelected) (e.currentTarget as HTMLElement).style.transform = 'translateY(-8px)';
             }}
             onMouseLeave={(e) => {
+              onTileHoverEnd();
               if (!isSelected) (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
             }}
+            onTouchStart={hoverProps.onTouchStart as React.TouchEventHandler}
+            onTouchEnd={hoverProps.onTouchEnd as React.TouchEventHandler}
+            onTouchCancel={hoverProps.onTouchCancel as React.TouchEventHandler}
             style={{
               marginRight: idx === sorted.length - 1 ? 0 : -Math.round(depth / 2),
               zIndex: idx,
@@ -182,6 +192,7 @@ export function OtherPlayerHand({
   tiles?: GameTile[];
   showFace?: boolean;
 }) {
+  const { isSameTile, tileHoverProps } = useTileHover();
   // When showFace is true and tiles are available, render face-up TableTiles
   if (showFace && tiles && tiles.length > 0) {
     const suitOrder: Record<string, number> = { tiao: 0, tong: 1, wan: 2, wind: 3, dragon: 3, flower: 5 };
@@ -210,13 +221,15 @@ export function OtherPlayerHand({
           const RiichiComponent = getTileComponent(tileId);
           const flowerImage = tile.suit === 'flower' ? getFlowerImage(tileId) : undefined;
           return (
-            <TableTile key={tile.id} width={tileWidth} height={tileHeight} radius={4} direction={direction}>
-              {flowerImage ? (
-                <img src={flowerImage} alt="flower" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 3 }} />
-              ) : RiichiComponent ? (
-                <RiichiComponent width="100%" height="100%" />
-              ) : null}
-            </TableTile>
+            <div key={tile.id} className={isSameTile(tile) ? 'tile-hover-highlight' : undefined} {...tileHoverProps(tile)}>
+              <TableTile width={tileWidth} height={tileHeight} radius={4} direction={direction}>
+                {flowerImage ? (
+                  <img src={flowerImage} alt="flower" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 3 }} />
+                ) : RiichiComponent ? (
+                  <RiichiComponent width="100%" height="100%" />
+                ) : null}
+              </TableTile>
+            </div>
           );
         })}
       </div>

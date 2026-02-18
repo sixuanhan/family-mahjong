@@ -43,6 +43,12 @@ img {
   100% { background-color: rgba(46, 125, 50, 0.6); }
 }
 
+/* Tile hover: highlight all same-identity tiles */
+.tile-hover-highlight {
+  filter: brightness(1.3) drop-shadow(0 0 4px rgba(255, 215, 0, 0.8));
+  transition: filter 0.15s ease;
+}
+
 /* 5. Custom scrollbar for the Hu Manual table if it gets too long */
 div::-webkit-scrollbar {
   width: 4px;
