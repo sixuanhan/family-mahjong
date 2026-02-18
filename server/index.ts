@@ -282,6 +282,16 @@ wss.on('connection', (ws, req) => {
         case 'pass': {
             if (game.roomPhase !== 'playing') return;
 
+            // Response actions (peng/chi/gang/hu/pass) can race with the
+            // 500ms timer that auto-resolves the response phase. If the
+            // phase has already moved on, silently ignore the stale click
+            // instead of throwing an error popup to the player.
+            const isResponseAction = ['peng', 'chi', 'gang', 'hu', 'pass'].includes(msg.action);
+            if (isResponseAction && game.turnPhase !== '等待响应') {
+              console.log(`[Server] Ignoring stale '${msg.action}' from ${playerId} (phase is now '${game.turnPhase}')`);
+              return;
+            }
+
             let newGame = game;
             if (msg.action === 'draw') {
               newGame = drawTile(game, playerId);
