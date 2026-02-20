@@ -5,7 +5,7 @@ import { dealTiles } from './deal';
 import { drawTile } from './draw';
 
 const INITIAL_SCORE = 250;
-const HUANGZHUANG_THRESHOLD = 32; // 牌山剩余32张时荒庄
+const HUANGZHUANG_THRESHOLD = 16; // 牌山剩余16张时荒庄
 
 /**
  * 初始化比赛状态（所有玩家准备好后调用）

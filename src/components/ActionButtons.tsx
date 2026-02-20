@@ -14,9 +14,11 @@ interface Props {
   onNicknameChange: (val: string) => void;
   sendAction: (action: string, payload?: Record<string, unknown>) => void;
   onDiscard: () => void;
+  autopass: boolean;
+  onAutopassChange: (val: boolean) => void;
 }
 
-export function ActionButtons({ game, me, playerId, selectedTileId, nickname, onNicknameChange, sendAction, onDiscard }: Props) {
+export function ActionButtons({ game, me, playerId, selectedTileId, nickname, onNicknameChange, sendAction, onDiscard, autopass, onAutopassChange }: Props) {
   return (
     <div style={{
       position: 'absolute',
@@ -27,6 +29,23 @@ export function ActionButtons({ game, me, playerId, selectedTileId, nickname, on
       gap: 6,
       alignItems: 'flex-end',
     }}>
+      {game.roomPhase === 'playing' && (
+        <button
+          onClick={() => onAutopassChange(!autopass)}
+          style={{
+            background: autopass ? '#ff9800' : '#555',
+            color: 'white',
+            border: 'none',
+            borderRadius: 4,
+            padding: '4px 10px',
+            cursor: 'pointer',
+            fontSize: 13,
+            opacity: 0.9,
+          }}
+        >
+          {autopass ? '✅ 自动过牌' : '自动过牌'}
+        </button>
+      )}
       {game.roomPhase === 'waiting_ready' && (
         <div style={{ textAlign: 'right' }}>
           {!me.isReady && (
@@ -78,13 +97,13 @@ export function ActionButtons({ game, me, playerId, selectedTileId, nickname, on
               {game.pendingResponses?.huResponders?.includes(playerId) && (
                 <button onClick={() => sendAction('hu')} style={{ background: '#ff4444', color: 'white' }}>胡</button>
               )}
-              {game.pendingResponses?.responders.includes(playerId) && (
+              {!autopass && game.pendingResponses?.responders.includes(playerId) && (
                 <button onClick={() => sendAction('peng')}>碰</button>
               )}
-              {game.pendingResponses?.gangResponders?.includes(playerId) && (
+              {!autopass && game.pendingResponses?.gangResponders?.includes(playerId) && (
                 <button onClick={() => sendAction('gang')}>杠</button>
               )}
-              {game.pendingResponses?.chiResponder === playerId &&
+              {!autopass && game.pendingResponses?.chiResponder === playerId &&
                 game.pendingResponses?.tile &&
                 !isChiLocked(game) &&
                 getChiOptions(me.hand, game.pendingResponses.tile).map((opt, idx) => (
@@ -93,9 +112,9 @@ export function ActionButtons({ game, me, playerId, selectedTileId, nickname, on
                   </button>
                 ))}
               {(game.pendingResponses?.huResponders?.includes(playerId) ||
-                game.pendingResponses?.responders.includes(playerId) ||
+                (!autopass && (game.pendingResponses?.responders.includes(playerId) ||
                 game.pendingResponses?.gangResponders?.includes(playerId) ||
-                game.pendingResponses?.chiResponder === playerId) && (
+                game.pendingResponses?.chiResponder === playerId))) && (
                 <button onClick={() => sendAction('pass')}>过</button>
               )}
             </>

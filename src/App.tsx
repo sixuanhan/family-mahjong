@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import type { Tile } from './types/tile';
 import Hand, { OtherPlayerHand } from './Hand';
@@ -16,6 +16,7 @@ function App() {
   const { game, playerId, connectionStatus, sendAction } = useGameConnection();
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
+  const [autopass, setAutopass] = useState(false);
 
   if (!game) {
     return (
@@ -72,6 +73,22 @@ function App() {
   const showFace = game.roomPhase === 'settling';
 
   const isMyTurnToDiscard = game.turnPhase === '等待出牌' && game.players[game.currentPlayerIndex]?.id === me.id;
+
+  // Autopass: automatically send 'pass' when in response phase, unless we can hu
+  useEffect(() => {
+    if (!autopass || !game || game.turnPhase !== '等待响应' || !game.pendingResponses) return;
+    const pending = game.pendingResponses;
+    const canRespond =
+      pending.huResponders?.includes(playerId) ||
+      pending.responders.includes(playerId) ||
+      pending.gangResponders?.includes(playerId) ||
+      pending.chiResponder === playerId;
+    if (!canRespond) return;
+    // If we can hu, don't auto-pass — let the player decide
+    if (pending.huResponders?.includes(playerId)) return;
+    // Auto-pass chi/peng/gang
+    sendAction('pass');
+  }, [autopass, game?.turnPhase, game?.pendingResponses, playerId, sendAction]);
 
   return (
     <TileHoverProvider>
@@ -178,6 +195,8 @@ function App() {
             onNicknameChange={setNickname}
             sendAction={sendAction}
             onDiscard={handleDiscardTile}
+            autopass={autopass}
+            onAutopassChange={setAutopass}
           />
         </div>
       </div>
