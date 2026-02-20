@@ -38,9 +38,11 @@ img {
 }
 
 @keyframes activePlayerGlow {
-  0%   { background-color: rgba(46, 125, 50, 0.6); }
-  50%  { background-color: rgba(30, 90, 160, 0.6); }
-  100% { background-color: rgba(46, 125, 50, 0.6); }
+  0%   { background-color: rgba(200, 30, 30, 0.6); }
+  25%  { background-color: rgba(230, 180, 0, 0.6); }
+  50%  { background-color: rgba(46, 125, 50, 0.6); }
+  75%  { background-color: rgba(230, 180, 0, 0.6); }
+  100% { background-color: rgba(200, 30, 30, 0.6); }
 }
 
 /* Tile hover: highlight all same-identity tiles */

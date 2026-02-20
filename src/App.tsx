@@ -100,7 +100,7 @@ function App() {
     <TileHoverProvider>
     <div style={{ minWidth: 1400, minHeight: 900, display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#1a1a1a', padding: '40px' }}>
       <ConnectionStatus status={connectionStatus} />
-      <div style={{ position: 'relative', width: 1400, height: 900, background: '#2e7d32', borderRadius: 16, boxShadow: '0 0 20px rgba(0,0,0,0.5)', flexShrink: 0, ...(isMyTurnToDiscard ? { animation: 'activePlayerGlow 2s ease-in-out infinite' } : {}) }}>
+      <div style={{ position: 'relative', width: 1400, height: 900, background: '#2e7d32', borderRadius: 16, boxShadow: '0 0 20px rgba(0,0,0,0.5)', flexShrink: 0, ...(isMyTurnToDiscard ? { animation: 'activePlayerGlow 4s ease-in-out infinite' } : {}) }}>
 
         <HuManual />
         <VoteButtons game={game} playerId={playerId} sendAction={sendAction} />
