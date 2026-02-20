@@ -53,10 +53,11 @@ export function HuManual() {
               <tr><td>字一色</td><td style={{ textAlign: 'right' }}>100</td></tr>
               <tr><td>大三元</td><td style={{ textAlign: 'right' }}>200</td></tr>
               <tr><td>小四喜</td><td style={{ textAlign: 'right' }}>200</td></tr>
-              <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 332</td></tr>
+              <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 3332</td></tr>
               <tr><td>大四喜</td><td style={{ textAlign: 'right' }}>300</td></tr>
               <tr><td>风碰</td><td style={{ textAlign: 'right' }}>300</td></tr>
               <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 需一句话</td></tr>
+              <tr><td>十三不靠</td><td style={{ textAlign: 'right' }}>500</td></tr>
               <tr><td>十三幺</td><td style={{ textAlign: 'right' }}>1000</td></tr>
               <tr style={{ color: '#aaa', fontSize: 11 }}><td colSpan={2}>└ 其中一种需2张</td></tr>
             </tbody>

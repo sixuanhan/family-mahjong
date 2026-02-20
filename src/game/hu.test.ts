@@ -255,6 +255,82 @@ describe('checkHu', () => {
     });
   });
 
+  // ==================== 十三不靠 (Thirteen Unrelated, 500) ====================
+
+  describe('十三不靠', () => {
+    it('valid — wan=147, tong=258, tiao=369, 5 honors', () => {
+      const hand = [
+        w(1), w(4), w(7),
+        b(2), b(5), b(8),
+        s(3), s(6), s(9),
+        wind('east'), wind('south'), wind('west'), wind('north'), dragon('red'),
+      ];
+      expectExact(checkHu(hand, []), true, ['十三不靠'], 500);
+    });
+
+    it('valid — different suit assignment: wan=258, tong=369, tiao=147', () => {
+      const hand = [
+        w(2), w(5), w(8),
+        b(3), b(6), b(9),
+        s(1), s(4), s(7),
+        wind('east'), dragon('red'), dragon('green'), dragon('white'), wind('south'),
+      ];
+      expectExact(checkHu(hand, []), true, ['十三不靠'], 500);
+    });
+
+    it('valid — wan=369, tong=147, tiao=258', () => {
+      const hand = [
+        w(3), w(6), w(9),
+        b(1), b(4), b(7),
+        s(2), s(5), s(8),
+        wind('west'), wind('north'), dragon('green'), dragon('white'), wind('east'),
+      ];
+      expectExact(checkHu(hand, []), true, ['十三不靠'], 500);
+    });
+
+    it('invalid — duplicate honor tile', () => {
+      const hand = [
+        w(1), w(4), w(7),
+        b(2), b(5), b(8),
+        s(3), s(6), s(9),
+        wind('east'), wind('east'), wind('west'), wind('north'), dragon('red'),
+      ];
+      expectExact(checkHu(hand, []), false, [], 0);
+    });
+
+    it('invalid — wrong number grouping (wan has 1,4,8 instead of 1,4,7)', () => {
+      const hand = [
+        w(1), w(4), w(8),
+        b(2), b(5), b(7),
+        s(3), s(6), s(9),
+        wind('east'), wind('south'), wind('west'), wind('north'), dragon('red'),
+      ];
+      expectExact(checkHu(hand, []), false, [], 0);
+    });
+
+    it('invalid — has melds', () => {
+      const hand = [
+        w(4), w(7),
+        b(2), b(5), b(8),
+        s(3), s(6), s(9),
+        wind('east'), wind('south'), wind('north'),
+      ];
+      const melds = [meld('peng', [w(1), w(1), w(1)], 'other')];
+      expectExact(checkHu(hand, melds), false, [], 0);
+    });
+
+    it('invalid — only 4 honor tiles', () => {
+      const hand = [
+        w(1), w(4), w(7),
+        b(2), b(5), b(8),
+        s(3), s(6), s(9),
+        w(2), // extra number tile instead of 5th honor
+        wind('east'), wind('south'), wind('west'), wind('north'),
+      ];
+      expectExact(checkHu(hand, []), false, [], 0);
+    });
+  });
+
   // ==================== 清一色 (Full Flush, 50) ====================
 
   describe('清一色', () => {

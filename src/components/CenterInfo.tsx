@@ -58,7 +58,7 @@ export function CenterInfo({ game, playerId, sendAction }: Props) {
 
       {/* 比赛结束 */}
       {game.roomPhase === 'competition_end' && game.competitionWinner && (
-        <CompetitionEnd game={game} />
+        <CompetitionEnd game={game} playerId={playerId} sendAction={sendAction} />
       )}
 
       {/* 结算阶段 - 荒庄 */}
@@ -184,7 +184,10 @@ function DiceRoll({ game, playerId, sendAction }: Props) {
   );
 }
 
-function CompetitionEnd({ game }: { game: GameState }) {
+function CompetitionEnd({ game, playerId, sendAction }: Props) {
+  const hasVoted = game.restartCompetitionVotes?.includes(playerId) ?? false;
+  const voteCount = game.restartCompetitionVotes?.length ?? 0;
+
   return (
     <div style={{
       background: 'rgba(0,0,0,0.9)',
@@ -205,6 +208,29 @@ function CompetitionEnd({ game }: { game: GameState }) {
             {p.name}: {game.playerScores[p.id]} 分
           </div>
         ))}
+      </div>
+      <div style={{ marginTop: 16, textAlign: 'center' }}>
+        <button
+          onClick={() => sendAction('voteRestartCompetition')}
+          style={{
+            padding: '8px 24px',
+            fontSize: 16,
+            background: hasVoted ? '#ff4444' : undefined,
+            color: hasVoted ? 'white' : undefined,
+            border: hasVoted ? 'none' : undefined,
+            borderRadius: 4,
+            cursor: 'pointer',
+          }}
+        >
+          重开比赛 {voteCount}/{game.players.length}
+        </button>
+        {voteCount > 0 && (
+          <div style={{ fontSize: 10, color: '#ddd', marginTop: 4 }}>
+            {game.restartCompetitionVotes!.map(id =>
+              game.players.find(p => p.id === id)?.name
+            ).join(', ')}
+          </div>
+        )}
       </div>
     </div>
   );

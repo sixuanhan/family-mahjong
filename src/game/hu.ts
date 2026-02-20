@@ -52,20 +52,28 @@ export function checkHu(
   // 检查十三幺
   const isShiSanYao = checkShiSanYao(hand, nonFlowerMelds);
 
+  // 检查十三不靠
+  const isShiSanBuKao = checkShiSanBuKao(hand, nonFlowerMelds);
+
   const isZiYiSe = checkZiYiSe(allTiles);
   
   // 检查标准胡牌形式（4面子+1雀头）
   const isStandardHu = checkWinningHand(hand, neededMelds);
   
-  if (!isStandardHu && !isQiDui && !isShiSanYao && !isZiYiSe) {
+  if (!isStandardHu && !isQiDui && !isShiSanYao && !isShiSanBuKao && !isZiYiSe) {
     return { canHu: false, patterns: [], totalScore: 0 };
   }
   
   // ===== 特殊牌型 =====
   
-  // 十三幺 = 100
+  // 十三幺 = 1000
   if (isShiSanYao) {
     patterns.push({ name: '十三幺', score: 1000 });
+  }
+  
+  // 十三不靠 = 500
+  if (isShiSanBuKao) {
+    patterns.push({ name: '十三不靠', score: 500 });
   }
   
   // 字一色 = 100
@@ -244,6 +252,69 @@ function checkShiSanYao(hand: Tile[], melds: Meld[]): boolean {
   
   // 必须恰好1对作为雀头
   return pairCount === 1;
+}
+
+/**
+ * 检查十三不靠
+ * 1,4,7 in one suit + 2,5,8 in a second suit + 3,6,9 in the third suit
+ * + 5 unique honor tiles (wind/dragon), no duplicates, no melds
+ */
+function checkShiSanBuKao(hand: Tile[], melds: Meld[]): boolean {
+  // 不能有副露
+  if (melds.length > 0) return false;
+  // 必须恰好14张手牌
+  if (hand.length !== 14) return false;
+
+  const numberSuits: Suit[] = ['wan', 'tong', 'tiao'];
+  const groups: [number, number, number][] = [
+    [1, 4, 7],
+    [2, 5, 8],
+    [3, 6, 9],
+  ];
+
+  // 分离数牌和字牌
+  const numberTiles = hand.filter(t => numberSuits.includes(t.suit));
+  const honorTiles = hand.filter(t => t.suit === 'wind' || t.suit === 'dragon');
+
+  // 必须恰好9张数牌 + 5张字牌
+  if (numberTiles.length !== 9 || honorTiles.length !== 5) return false;
+
+  // 字牌不能有重复
+  const honorKeys = new Set(honorTiles.map(t => `${t.suit}-${t.value}`));
+  if (honorKeys.size !== 5) return false;
+
+  // 按花色分组数牌
+  const bySuit: Record<string, number[]> = { wan: [], tong: [], tiao: [] };
+  for (const t of numberTiles) {
+    bySuit[t.suit].push(t.value as number);
+  }
+
+  // 每个花色必须恰好3张
+  for (const suit of numberSuits) {
+    if (bySuit[suit].length !== 3) return false;
+  }
+
+  // 尝试所有排列：哪个花色对应哪个组 (147, 258, 369)
+  const permutations: [number, number, number][] = [
+    [0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0],
+  ];
+
+  for (const perm of permutations) {
+    let valid = true;
+    for (let i = 0; i < 3; i++) {
+      const suit = numberSuits[perm[i]];
+      const expected = groups[i];
+      const actual = bySuit[suit].slice().sort((a, b) => a - b);
+      if (actual.length !== expected.length ||
+          actual[0] !== expected[0] || actual[1] !== expected[1] || actual[2] !== expected[2]) {
+        valid = false;
+        break;
+      }
+    }
+    if (valid) return true;
+  }
+
+  return false;
 }
 
 /**

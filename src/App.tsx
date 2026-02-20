@@ -92,7 +92,7 @@ function App() {
   const highlightedPlayerId = isWaitingResponse && game.pendingResponses?.fromPlayerId
     ? game.pendingResponses.fromPlayerId : undefined;
 
-  const showFace = game.roomPhase === 'settling';
+  const showFace = game.roomPhase === 'settling' || game.roomPhase === 'competition_end';
 
   const isMyTurnToDiscard = game.turnPhase === '等待出牌' && game.players[game.currentPlayerIndex]?.id === me.id;
 
