@@ -1,9 +1,15 @@
 import type { GameState } from './gameState';
 import type { Tile } from '../types/tile';
 
+const suitChineseNames: Record<string, string> = {
+  wan: '万',
+  tong: '饼',
+  tiao: '条',
+};
+
 /**
  * 检查玩家是否可以吃
- * 吃只能由下家执行，且只能吃数牌（万、筒、条）
+ * 吃只能由下家执行，且只能吃数牌（万、饼、条）
  */
 export function canChi(
   state: GameState,
@@ -34,7 +40,7 @@ export function canChi(
 }
 
 /**
- * 检查是否是数牌（万、筒、条）
+ * 检查是否是数牌（万、饼、条）
  */
 export function isNumberTile(tile: Tile): boolean {
   return (
@@ -62,6 +68,8 @@ export function getChiOptions(
     t => t.suit === suit && typeof t.value === 'number'
   );
 
+  const suitName = suitChineseNames[suit] || suit;
+
   // 三种可能的顺子模式：
   // 1. 弃牌是最小的: [弃牌, 弃牌+1, 弃牌+2]
   // 2. 弃牌是中间的: [弃牌-1, 弃牌, 弃牌+1]
@@ -76,7 +84,7 @@ export function getChiOptions(
     if (tile1 && tile2) {
       options.push({
         tiles: [tile1, tile2],
-        pattern: `${value}${value + 1}${value + 2}`,
+        pattern: `${value}${value + 1}${value + 2}${suitName}`,
       });
     }
   }
@@ -90,7 +98,7 @@ export function getChiOptions(
     if (tile1 && tile2) {
       options.push({
         tiles: [tile1, tile2],
-        pattern: `${value - 1}${value}${value + 1}`,
+        pattern: `${value - 1}${value}${value + 1}${suitName}`,
       });
     }
   }
@@ -104,7 +112,7 @@ export function getChiOptions(
     if (tile1 && tile2) {
       options.push({
         tiles: [tile1, tile2],
-        pattern: `${value - 2}${value - 1}${value}`,
+        pattern: `${value - 2}${value - 1}${value}${suitName}`,
       });
     }
   }

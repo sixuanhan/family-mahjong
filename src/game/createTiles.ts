@@ -13,7 +13,7 @@ function createTile(suit: Suit, value: TileValue): Tile {
 export function createFullTileSet(): Tile[] {
   const tiles: Tile[] = [];
 
-  // 万 / 筒 / 条
+  // 万 / 饼 / 条
   const suits: Suit[] = ['wan', 'tong', 'tiao'];
   for (const suit of suits) {
     for (let value = 1; value <= 9; value++) {

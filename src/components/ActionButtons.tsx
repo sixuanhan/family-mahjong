@@ -4,6 +4,7 @@ import { getChiOptions } from '../game/chi';
 import { canAnGang, canJiaGang } from '../game/gang';
 import { isChiLocked } from '../game/resolveResponse';
 import { canZimo } from '../game/hu';
+import { getTileChineseName } from '../game/tileUtils';
 
 interface Props {
   game: GameState;
@@ -81,12 +82,12 @@ export function ActionButtons({ game, me, playerId, selectedTileId, nickname, on
               )}
               {canAnGang(game, playerId).map((tile) => (
                 <button key={`angang-${tile.id}`} onClick={() => sendAction('angang', { tileId: tile.id })}>
-                  暗杠 {tile.suit} {tile.value}
+                  暗杠 {getTileChineseName(tile)}
                 </button>
               ))}
               {canJiaGang(game, playerId).map((tile) => (
                 <button key={`jiagang-${tile.id}`} onClick={() => sendAction('jiagang', { tileId: tile.id })}>
-                  加杠 {tile.suit} {tile.value}
+                  加杠 {getTileChineseName(tile)}
                 </button>
               ))}
             </>

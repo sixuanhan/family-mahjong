@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './App.css'
 import type { Tile } from './types/tile';
 import Hand, { OtherPlayerHand } from './Hand';
@@ -12,12 +12,58 @@ import { CenterInfo } from './components/CenterInfo';
 import { ActionButtons } from './components/ActionButtons';
 import { RestoreScreen } from './components/RestoreScreen';
 import { TileHoverProvider } from './hooks/useTileHover';
+import { speakTileName, speakChinese } from './game/tileUtils';
 
 function App() {
   const { game, playerId, connectionStatus, sendAction, restoreInfo } = useGameConnection();
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
   const [autopass, setAutopass] = useState(false);
+  const lastDiscardRef = useRef<string | undefined>(undefined);
+  const lastMeldCountRef = useRef<number>(0);
+  const lastWinnerRef = useRef<string | undefined>(undefined);
+
+  // Speak tile name when a card is discarded
+  useEffect(() => {
+    if (!game?.lastDiscard) return;
+    const discardId = game.lastDiscard.tile.id;
+    if (discardId !== lastDiscardRef.current) {
+      lastDiscardRef.current = discardId;
+      speakTileName(game.lastDiscard.tile);
+    }
+  }, [game?.lastDiscard]);
+
+  // Speak action when chi/peng/gang/hu occurs
+  useEffect(() => {
+    if (!game) return;
+
+    // Detect new meld (chi/peng/gang/flower)
+    const totalMelds = game.players.reduce((sum, p) => sum + p.melds.length, 0);
+    if (totalMelds > lastMeldCountRef.current && lastMeldCountRef.current > 0) {
+      // Find the newest meld
+      for (const p of game.players) {
+        if (p.melds.length > 0) {
+          const lastMeld = p.melds[p.melds.length - 1];
+          const actionNames: Record<string, string> = { chi: '吃', peng: '碰', gang: '杠', flower: '花' };
+          const name = actionNames[lastMeld.type];
+          if (name) {
+            speakChinese(name);
+            break;
+          }
+        }
+      }
+    }
+    lastMeldCountRef.current = totalMelds;
+
+    // Detect hu/zimo
+    if (game.winner && game.winner.playerId !== lastWinnerRef.current) {
+      lastWinnerRef.current = game.winner.playerId;
+      speakChinese(game.winner.winType === 'zimo' ? '自摸' : '胡');
+    }
+    if (!game.winner) {
+      lastWinnerRef.current = undefined;
+    }
+  }, [game]);
 
   // Autopass: automatically send 'pass' when in response phase, unless we can hu
   useEffect(() => {
