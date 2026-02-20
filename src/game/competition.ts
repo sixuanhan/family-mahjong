@@ -338,13 +338,31 @@ export function voteRestartCompetition(state: GameState, playerId: string): Game
   
   // 检查是否所有玩家都同意
   if (newVotes.length === state.players.length) {
-    // 重开比赛
-    return initCompetition({
+    // 重开比赛：回到等待准备状态，让玩家可以离开或新玩家加入
+    return {
       ...state,
+      roomPhase: 'waiting_ready' as const,
+      players: state.players.map(p => ({ ...p, isReady: false, hand: [], melds: [], flowers: [], discards: [] })),
+      wall: [],
+      currentPlayerIndex: 0,
+      turnPhase: 'draw' as const,
+      playerScores: {},
+      zhuangIndex: 0,
+      gameNumber: 1,
+      huangzhuangCount: 0,
+      diceRolls: undefined,
+      diceRollEligible: undefined,
+      scoreChanges: undefined,
+      competitionWinner: undefined,
+      isHuangzhuang: undefined,
       restartGameVotes: undefined,
       restartCompetitionVotes: undefined,
       nextGameVotes: undefined,
-    });
+      lastDiscard: undefined,
+      pendingResponses: undefined,
+      lastDrawnTileId: undefined,
+      winner: undefined,
+    };
   }
   
   return {
