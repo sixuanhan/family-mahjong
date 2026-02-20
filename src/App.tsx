@@ -18,6 +18,22 @@ function App() {
   const [nickname, setNickname] = useState('');
   const [autopass, setAutopass] = useState(false);
 
+  // Autopass: automatically send 'pass' when in response phase, unless we can hu
+  useEffect(() => {
+    if (!autopass || !game || !playerId || game.turnPhase !== '等待响应' || !game.pendingResponses) return;
+    const pending = game.pendingResponses;
+    const canRespond =
+      pending.huResponders?.includes(playerId) ||
+      pending.responders.includes(playerId) ||
+      pending.gangResponders?.includes(playerId) ||
+      pending.chiResponder === playerId;
+    if (!canRespond) return;
+    // If we can hu, don't auto-pass — let the player decide
+    if (pending.huResponders?.includes(playerId)) return;
+    // Auto-pass chi/peng/gang
+    sendAction('pass');
+  }, [autopass, game, playerId, sendAction]);
+
   if (!game) {
     return (
       <div style={{ padding: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -73,22 +89,6 @@ function App() {
   const showFace = game.roomPhase === 'settling';
 
   const isMyTurnToDiscard = game.turnPhase === '等待出牌' && game.players[game.currentPlayerIndex]?.id === me.id;
-
-  // Autopass: automatically send 'pass' when in response phase, unless we can hu
-  useEffect(() => {
-    if (!autopass || !game || game.turnPhase !== '等待响应' || !game.pendingResponses) return;
-    const pending = game.pendingResponses;
-    const canRespond =
-      pending.huResponders?.includes(playerId) ||
-      pending.responders.includes(playerId) ||
-      pending.gangResponders?.includes(playerId) ||
-      pending.chiResponder === playerId;
-    if (!canRespond) return;
-    // If we can hu, don't auto-pass — let the player decide
-    if (pending.huResponders?.includes(playerId)) return;
-    // Auto-pass chi/peng/gang
-    sendAction('pass');
-  }, [autopass, game?.turnPhase, game?.pendingResponses, playerId, sendAction]);
 
   return (
     <TileHoverProvider>
