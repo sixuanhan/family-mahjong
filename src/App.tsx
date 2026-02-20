@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import './App.css'
 import type { Tile } from './types/tile';
 import Hand, { OtherPlayerHand } from './Hand';
@@ -13,15 +13,30 @@ import { ActionButtons } from './components/ActionButtons';
 import { RestoreScreen } from './components/RestoreScreen';
 import { TileHoverProvider } from './hooks/useTileHover';
 import { speakTileName, speakChinese } from './game/tileUtils';
+import chiImg from './assets/chi.png';
+import pengImg from './assets/peng.png';
+import gangImg from './assets/gang.png';
 
 function App() {
   const { game, playerId, connectionStatus, sendAction, restoreInfo } = useGameConnection();
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
   const [autopass, setAutopass] = useState(false);
+  const [actionFlash, setActionFlash] = useState<string | null>(null);
+  const actionFlashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastDiscardRef = useRef<string | undefined>(undefined);
   const lastMeldCountRef = useRef<number>(0);
   const lastWinnerRef = useRef<string | undefined>(undefined);
+
+  const actionImages: Record<string, string> = { chi: chiImg, peng: pengImg, gang: gangImg };
+
+  const showActionFlash = useCallback((type: string) => {
+    const img = actionImages[type];
+    if (!img) return;
+    if (actionFlashTimer.current) clearTimeout(actionFlashTimer.current);
+    setActionFlash(img);
+    actionFlashTimer.current = setTimeout(() => setActionFlash(null), 1000);
+  }, []);
 
   // Speak tile name when a card is discarded
   useEffect(() => {
@@ -48,6 +63,7 @@ function App() {
           const name = actionNames[lastMeld.type];
           if (name) {
             speakChinese(name);
+            showActionFlash(lastMeld.type);
             break;
           }
         }
@@ -150,6 +166,25 @@ function App() {
 
         <HuManual />
         <VoteButtons game={game} playerId={playerId} sendAction={sendAction} />
+
+        {/* ===== 动作闪图 ===== */}
+        {actionFlash && (
+          <img
+            src={actionFlash}
+            alt="action"
+            style={{
+              position: 'absolute',
+              top: '45%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 200,
+              height: 'auto',
+              zIndex: 200,
+              pointerEvents: 'none',
+              animation: 'actionFlash 1s ease-out forwards',
+            }}
+          />
+        )}
 
         {/* ===== 上方玩家 ===== */}
         <div style={{ position: 'absolute', top: 0, left: 200, width: 1000, height: 120, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 8, boxSizing: 'border-box' }}>
