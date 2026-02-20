@@ -3,6 +3,12 @@ import type { GameState } from '../game/gameState';
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'reconnecting';
 
+export interface RestoreInfo {
+  players: { id: string; name: string }[];
+  claims: Record<string, string>; // newPlayerId -> oldPlayerId
+  started: boolean;
+}
+
 export function useGameConnection() {
   const ws = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -13,6 +19,7 @@ export function useGameConnection() {
   const [game, setGame] = useState<GameState | null>(null);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
+  const [restoreInfo, setRestoreInfo] = useState<RestoreInfo | null>(null);
 
   const connectWebSocket = useRef<(() => void) | undefined>(undefined);
 
@@ -57,11 +64,36 @@ export function useGameConnection() {
           setPlayerId(msg.playerId);
           localStorage.setItem('mahjong-playerId', msg.playerId);
           setGame(msg.game);
+          if (msg.restoreAvailable) {
+            setRestoreInfo(msg.restoreAvailable);
+          } else {
+            setRestoreInfo(null);
+          }
           return;
         }
 
         if (msg.type === 'sync') {
           setGame(msg.game);
+          setRestoreInfo(null); // Restore is over if game is syncing
+          return;
+        }
+
+        if (msg.type === 'restoreUpdate') {
+          setRestoreInfo({
+            players: msg.players,
+            claims: msg.claims,
+            started: msg.started,
+          });
+          return;
+        }
+
+        if (msg.type === 'restoreCancelled') {
+          setRestoreInfo(null);
+          setGame(msg.game);
+          // Re-join the fresh game
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ action: 'join' }));
+          }
           return;
         }
 
@@ -115,5 +147,5 @@ export function useGameConnection() {
     }
   }, []);
 
-  return { game, playerId, connectionStatus, sendAction };
+  return { game, playerId, connectionStatus, sendAction, restoreInfo };
 }

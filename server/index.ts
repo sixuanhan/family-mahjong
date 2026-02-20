@@ -107,7 +107,29 @@ function saveGameState(state: GameState | null) {
   }
 }
 
-let game: GameState | null = loadGameState();
+// Restore mode: if a meaningful saved game exists, offer restore instead of loading directly
+interface RestoreInfo {
+  savedGame: GameState;
+  claims: Record<string, string>; // newPlayerId -> oldPlayerId
+  started: boolean;
+}
+
+let restoreInfo: RestoreInfo | null = null;
+const savedGame = loadGameState();
+let game: GameState | null = null;
+
+if (savedGame && savedGame.players.length > 0 &&
+    savedGame.roomPhase !== 'waiting_players' && savedGame.roomPhase !== 'waiting_ready') {
+  restoreInfo = {
+    savedGame,
+    claims: {},
+    started: false,
+  };
+  console.log('[Server] Found saved game state with', savedGame.players.length, 'players, restore available');
+} else {
+  game = savedGame;
+}
+
 const clients = new Map<WebSocket, string>();
 
 wss.on('connection', (ws, req) => {
@@ -153,7 +175,7 @@ wss.on('connection', (ws, req) => {
     
   clients.set(ws, playerId);
 
-  if (!game) {
+  if (!game && !restoreInfo) {
     game = {
       roomId: 'room1',
       players: [],
@@ -173,6 +195,13 @@ wss.on('connection', (ws, req) => {
       type: 'welcome',
       playerId,
       game,
+      ...(restoreInfo ? {
+        restoreAvailable: {
+          players: restoreInfo.savedGame.players.map(p => ({ id: p.id, name: p.name })),
+          claims: restoreInfo.claims,
+          started: restoreInfo.started,
+        }
+      } : {}),
     })
   );
   
@@ -183,6 +212,59 @@ wss.on('connection', (ws, req) => {
 
     ws.on('message', (raw) => {
     const msg = JSON.parse(raw.toString());
+
+    // Handle restore actions (work even when game is null)
+    if (msg.action === 'startRestore') {
+      if (!restoreInfo) return;
+      restoreInfo.started = true;
+      broadcastRestoreState();
+      return;
+    }
+
+    if (msg.action === 'claimPlayer') {
+      if (!restoreInfo || !restoreInfo.started) return;
+      const oldPlayerId = msg.oldPlayerId as string;
+      if (!restoreInfo.savedGame.players.find(p => p.id === oldPlayerId)) return;
+      // Check if already claimed by someone else
+      const claimedByOther = Object.entries(restoreInfo.claims).find(
+        ([newId, oldId]) => oldId === oldPlayerId && newId !== playerId
+      );
+      if (claimedByOther) return;
+      // Set/update claim
+      restoreInfo.claims[playerId] = oldPlayerId;
+      // Check if all players claimed
+      if (Object.keys(restoreInfo.claims).length === restoreInfo.savedGame.players.length) {
+        finalizeRestore();
+      } else {
+        broadcastRestoreState();
+      }
+      return;
+    }
+
+    if (msg.action === 'cancelRestore') {
+      if (!restoreInfo) return;
+      restoreInfo = null;
+      saveGameState(null);
+      // Create fresh game
+      game = {
+        roomId: 'room1',
+        players: [],
+        wall: [],
+        currentPlayerIndex: 0,
+        turnPhase: '等待摸牌',
+        roomPhase: 'waiting_players',
+        playerScores: {},
+        zhuangIndex: 0,
+        gameNumber: 0,
+        huangzhuangCount: 0,
+      };
+      const cancelMsg = JSON.stringify({ type: 'restoreCancelled', game });
+      for (const client of Array.from(clients.keys())) {
+        if (client.readyState === 1) client.send(cancelMsg);
+      }
+      return;
+    }
+
     if (!game) return;
 
     try {
@@ -362,14 +444,20 @@ wss.on('connection', (ws, req) => {
     });
 
     ws.on('close', () => {
-        const playerId = clients.get(ws);
+        const pid = clients.get(ws);
         clients.delete(ws);
         
-        if (playerId && game) {
+        // Clean up restore claims
+        if (pid && restoreInfo && restoreInfo.claims[pid]) {
+            delete restoreInfo.claims[pid];
+            broadcastRestoreState();
+        }
+        
+        if (pid && game) {
             // 如果游戏还在等待阶段，直接移除玩家
             if (game.roomPhase === 'waiting_players' || game.roomPhase === 'waiting_ready') {
-                game.players = game.players.filter(p => p.id !== playerId);
-                console.log(`[WS] Player ${playerId} disconnected and removed, remaining: ${game.players.length}`);
+                game.players = game.players.filter(p => p.id !== pid);
+                console.log(`[WS] Player ${pid} disconnected and removed, remaining: ${game.players.length}`);
                 
                 // 如果没有玩家了，重置游戏
                 if (game.players.length === 0) {
@@ -381,10 +469,10 @@ wss.on('connection', (ws, req) => {
                 }
             } else {
                 // 游戏进行中，标记为离线
-                const player = game.players.find(p => p.id === playerId);
+                const player = game.players.find(p => p.id === pid);
                 if (player) {
                     player.isOnline = false;
-                    console.log(`[WS] Player ${playerId} disconnected (marked offline)`);
+                    console.log(`[WS] Player ${pid} disconnected (marked offline)`);
                     broadcast(game);
                 }
             }
@@ -403,6 +491,85 @@ function broadcast(gameState: GameState) {
       client.send(msg);
     }
   }
+}
+
+function broadcastRestoreState() {
+  if (!restoreInfo) return;
+  const msg = JSON.stringify({
+    type: 'restoreUpdate',
+    players: restoreInfo.savedGame.players.map(p => ({ id: p.id, name: p.name })),
+    claims: restoreInfo.claims,
+    started: restoreInfo.started,
+  });
+  for (const client of Array.from(clients.keys())) {
+    if (client.readyState === 1) client.send(msg);
+  }
+}
+
+function finalizeRestore() {
+  if (!restoreInfo) return;
+  const oldGame = restoreInfo.savedGame;
+  // Build reverse map: oldPlayerId -> newPlayerId
+  const reverseMap: Record<string, string> = {};
+  for (const [newId, oldId] of Object.entries(restoreInfo.claims)) {
+    reverseMap[oldId] = newId;
+  }
+  game = remapGameState(oldGame, reverseMap);
+  game.players.forEach(p => { p.isOnline = true; });
+  restoreInfo = null;
+  broadcast(game);
+}
+
+function remapGameState(oldGame: GameState, idMap: Record<string, string>): GameState {
+  const mapId = (id: string) => idMap[id] || id;
+  const g = JSON.parse(JSON.stringify(oldGame)) as GameState;
+
+  // Remap player IDs and their meld references
+  for (const player of g.players) {
+    player.id = mapId(player.id);
+    for (const meld of player.melds) {
+      if (meld.fromPlayerId) meld.fromPlayerId = mapId(meld.fromPlayerId);
+    }
+  }
+
+  // Remap scores
+  const newScores: Record<string, number> = {};
+  for (const [oldId, score] of Object.entries(g.playerScores)) {
+    newScores[mapId(oldId)] = score;
+  }
+  g.playerScores = newScores;
+
+  // Remap other references
+  if (g.lastDiscard) g.lastDiscard.playerId = mapId(g.lastDiscard.playerId);
+
+  if (g.pendingResponses) {
+    const pr = g.pendingResponses;
+    pr.fromPlayerId = mapId(pr.fromPlayerId);
+    pr.responders = pr.responders.map(mapId);
+    if (pr.gangResponders) pr.gangResponders = pr.gangResponders.map(mapId);
+    if (pr.chiResponder) pr.chiResponder = mapId(pr.chiResponder);
+    if (pr.huResponders) pr.huResponders = pr.huResponders.map(mapId);
+    const newResp: typeof pr.responses = {};
+    for (const [oldId, resp] of Object.entries(pr.responses)) {
+      newResp[mapId(oldId)] = resp;
+    }
+    pr.responses = newResp;
+  }
+
+  if (g.winner) {
+    g.winner.playerId = mapId(g.winner.playerId);
+    if (g.winner.fromPlayerId) g.winner.fromPlayerId = mapId(g.winner.fromPlayerId);
+  }
+
+  if (g.diceRolls) g.diceRolls = g.diceRolls.map(r => ({ ...r, playerId: mapId(r.playerId) }));
+  if (g.diceRollEligible) g.diceRollEligible = g.diceRollEligible.map(mapId);
+  if (g.scoreChanges) g.scoreChanges = g.scoreChanges.map(sc => ({ ...sc, playerId: mapId(sc.playerId) }));
+  if (g.competitionWinner) g.competitionWinner = mapId(g.competitionWinner);
+  if (g.restartGameVotes) g.restartGameVotes = g.restartGameVotes.map(mapId);
+  if (g.restartCompetitionVotes) g.restartCompetitionVotes = g.restartCompetitionVotes.map(mapId);
+  if (g.nextGameVotes) g.nextGameVotes = g.nextGameVotes.map(mapId);
+
+  return g;
 }
 
 console.log(`[Server] Listening on http://0.0.0.0:${PORT}`);

@@ -10,10 +10,11 @@ import { HuManual } from './components/HuManual';
 import { VoteButtons } from './components/VoteButtons';
 import { CenterInfo } from './components/CenterInfo';
 import { ActionButtons } from './components/ActionButtons';
+import { RestoreScreen } from './components/RestoreScreen';
 import { TileHoverProvider } from './hooks/useTileHover';
 
 function App() {
-  const { game, playerId, connectionStatus, sendAction } = useGameConnection();
+  const { game, playerId, connectionStatus, sendAction, restoreInfo } = useGameConnection();
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
   const [autopass, setAutopass] = useState(false);
@@ -33,6 +34,11 @@ function App() {
     // Auto-pass chi/peng/gang
     sendAction('pass');
   }, [autopass, game, playerId, sendAction]);
+
+  // Show restore screen if restore is available
+  if (restoreInfo && playerId) {
+    return <RestoreScreen restoreInfo={restoreInfo} playerId={playerId} sendAction={sendAction} />;
+  }
 
   if (!game) {
     return (
