@@ -67,8 +67,8 @@ export default function DiscardArea({
     );
   }
 
-  // top: 对对面玩家而言，从右到左是他的「从左到右」
-  const displayTiles = direction === 'top' ? [...tiles].reverse() : tiles;
+  // top: 对面玩家弃牌，RTL使最新牌在左、最早牌在右
+  const displayTiles = tiles;
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
