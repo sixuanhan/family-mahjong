@@ -55,5 +55,6 @@ export function handlePeng(
     pendingResponses: undefined,
     lastDiscard: undefined,
     lastDrawnTileId: undefined,
+    lastAction: { type: 'peng', playerId, actionId: `peng-${Date.now()}` },
   };
 }

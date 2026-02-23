@@ -84,5 +84,11 @@ export interface GameState {
 
   lastDrawnTileId?: string; // 最近摸到的牌
 
+  lastAction?: {
+    type: 'chi' | 'peng' | 'gang' | 'angang' | 'jiagang' | 'flower' | 'hu' | 'zimo';
+    playerId: string;
+    actionId: string; // unique ID to detect changes
+  };
+
   winner?: WinnerInfo;
 }

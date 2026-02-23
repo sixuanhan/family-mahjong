@@ -55,6 +55,7 @@ export function handleRon(
     },
     pendingResponses: undefined,
     lastDiscard: undefined,
+    lastAction: { type: 'hu', playerId, actionId: `hu-${Date.now()}` },
   };
 }
 
@@ -96,5 +97,6 @@ export function handleZimo(
       patterns: huResult.patterns,
       totalScore: huResult.totalScore,
     },
+    lastAction: { type: 'zimo', playerId, actionId: `zimo-${Date.now()}` },
   };
 }

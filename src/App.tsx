@@ -25,8 +25,7 @@ function App() {
   const [actionFlash, setActionFlash] = useState<string | null>(null);
   const actionFlashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastDiscardRef = useRef<string | undefined>(undefined);
-  const lastMeldCountRef = useRef<number>(0);
-  const lastWinnerRef = useRef<string | undefined>(undefined);
+  const lastActionRef = useRef<string | undefined>(undefined);
 
   const actionImages: Record<string, string> = { chi: chiImg, peng: pengImg, gang: gangImg };
 
@@ -48,38 +47,24 @@ function App() {
     }
   }, [game?.lastDiscard]);
 
-  // Speak action when chi/peng/gang/hu occurs
+  // Speak and flash action when chi/peng/gang/flower/hu/zimo occurs
   useEffect(() => {
-    if (!game) return;
+    if (!game?.lastAction) return;
+    if (game.lastAction.actionId === lastActionRef.current) return;
+    lastActionRef.current = game.lastAction.actionId;
 
-    // Detect new meld (chi/peng/gang/flower)
-    const totalMelds = game.players.reduce((sum, p) => sum + p.melds.length, 0);
-    if (totalMelds > lastMeldCountRef.current && lastMeldCountRef.current > 0) {
-      // Find the newest meld
-      for (const p of game.players) {
-        if (p.melds.length > 0) {
-          const lastMeld = p.melds[p.melds.length - 1];
-          const actionNames: Record<string, string> = { chi: '吃', peng: '碰', gang: '杠', flower: '花' };
-          const name = actionNames[lastMeld.type];
-          if (name) {
-            speakChinese(name);
-            showActionFlash(lastMeld.type);
-            break;
-          }
-        }
-      }
-    }
-    lastMeldCountRef.current = totalMelds;
+    const actionNames: Record<string, string> = {
+      chi: '吃', peng: '碰', gang: '杠', angang: '杠', jiagang: '杠',
+      flower: '花', hu: '胡', zimo: '自摸',
+    };
+    const name = actionNames[game.lastAction.type];
+    if (name) speakChinese(name);
 
-    // Detect hu/zimo
-    if (game.winner && game.winner.playerId !== lastWinnerRef.current) {
-      lastWinnerRef.current = game.winner.playerId;
-      speakChinese(game.winner.winType === 'zimo' ? '自摸' : '胡');
-    }
-    if (!game.winner) {
-      lastWinnerRef.current = undefined;
-    }
-  }, [game]);
+    // Flash image for chi/peng/gang actions
+    const flashType = game.lastAction.type === 'angang' || game.lastAction.type === 'jiagang'
+      ? 'gang' : game.lastAction.type;
+    showActionFlash(flashType);
+  }, [game?.lastAction]);
 
   // Autopass: automatically send 'pass' when in response phase, unless we can hu
   useEffect(() => {

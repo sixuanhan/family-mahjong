@@ -70,6 +70,7 @@ export function handleMingGang(
     pendingResponses: undefined,
     lastDiscard: undefined,
     lastDrawnTileId: drawnTile.id,
+    lastAction: { type: 'gang', playerId, actionId: `gang-${Date.now()}` },
   };
 }
 
@@ -130,6 +131,7 @@ export function handleAnGang(
     wall,
     turnPhase: '等待出牌',
     lastDrawnTileId: drawnTile.id,
+    lastAction: { type: 'angang', playerId, actionId: `angang-${Date.now()}` },
   };
 }
 
@@ -193,5 +195,6 @@ export function handleJiaGang(
     wall,
     turnPhase: '等待出牌',
     lastDrawnTileId: drawnTile.id,
+    lastAction: { type: 'jiagang', playerId, actionId: `jiagang-${Date.now()}` },
   };
 }

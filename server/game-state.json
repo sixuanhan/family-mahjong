@@ -2,14 +2,9 @@
   "roomId": "room1",
   "players": [
     {
-      "id": "6a7bd2f0-02be-480d-bfa1-56044a32f423",
+      "id": "53a3b735-818f-4fb2-8322-167d0c41b69f",
       "name": "2",
       "hand": [
-        {
-          "id": "tile-47",
-          "suit": "tong",
-          "value": 3
-        },
         {
           "id": "tile-86",
           "suit": "tiao",
@@ -31,26 +26,6 @@
           "value": 4
         },
         {
-          "id": "tile-89",
-          "suit": "tiao",
-          "value": 5
-        },
-        {
-          "id": "tile-94",
-          "suit": "tiao",
-          "value": 6
-        },
-        {
-          "id": "tile-74",
-          "suit": "tiao",
-          "value": 1
-        },
-        {
-          "id": "tile-131",
-          "suit": "dragon",
-          "value": "green"
-        },
-        {
           "id": "tile-118",
           "suit": "wind",
           "value": "west"
@@ -66,19 +41,122 @@
           "value": 8
         },
         {
-          "id": "tile-48",
+          "id": "tile-37",
+          "suit": "tong",
+          "value": 1
+        },
+        {
+          "id": "tile-8",
+          "suit": "wan",
+          "value": 3
+        },
+        {
+          "id": "tile-49",
           "suit": "tong",
           "value": 4
+        },
+        {
+          "id": "tile-80",
+          "suit": "tiao",
+          "value": 3
         }
       ],
-      "melds": [],
-      "discards": [],
+      "melds": [
+        {
+          "type": "flower",
+          "tiles": [
+            {
+              "id": "tile-138",
+              "suit": "flower",
+              "value": "autumn"
+            }
+          ]
+        },
+        {
+          "type": "chi",
+          "tiles": [
+            {
+              "id": "tile-47",
+              "suit": "tong",
+              "value": 3
+            },
+            {
+              "id": "tile-48",
+              "suit": "tong",
+              "value": 4
+            },
+            {
+              "id": "tile-53",
+              "suit": "tong",
+              "value": 5
+            }
+          ],
+          "fromPlayerId": "ea354d23-edfc-44ed-ae89-1209515f162c"
+        }
+      ],
+      "discards": [
+        {
+          "id": "tile-131",
+          "suit": "dragon",
+          "value": "green"
+        },
+        {
+          "id": "tile-120",
+          "suit": "wind",
+          "value": "north"
+        },
+        {
+          "id": "tile-4",
+          "suit": "wan",
+          "value": 2
+        },
+        {
+          "id": "tile-113",
+          "suit": "wind",
+          "value": "south"
+        },
+        {
+          "id": "tile-74",
+          "suit": "tiao",
+          "value": 1
+        },
+        {
+          "id": "tile-125",
+          "suit": "dragon",
+          "value": "red"
+        },
+        {
+          "id": "tile-0",
+          "suit": "wan",
+          "value": 1
+        },
+        {
+          "id": "tile-108",
+          "suit": "wind",
+          "value": "east"
+        },
+        {
+          "id": "tile-128",
+          "suit": "dragon",
+          "value": "green"
+        },
+        {
+          "id": "tile-68",
+          "suit": "tong",
+          "value": 9
+        },
+        {
+          "id": "tile-69",
+          "suit": "tong",
+          "value": 9
+        }
+      ],
       "isReady": true,
-      "isOnline": true,
+      "isOnline": false,
       "flowers": []
     },
     {
-      "id": "d64dd9f9-6c6b-4a06-b179-c7a0c3c9609a",
+      "id": "ea354d23-edfc-44ed-ae89-1209515f162c",
       "name": "1",
       "hand": [
         {
@@ -87,49 +165,9 @@
           "value": 6
         },
         {
-          "id": "tile-50",
-          "suit": "tong",
-          "value": 4
-        },
-        {
-          "id": "tile-60",
-          "suit": "tong",
-          "value": 7
-        },
-        {
           "id": "tile-16",
           "suit": "wan",
           "value": 5
-        },
-        {
-          "id": "tile-33",
-          "suit": "wan",
-          "value": 9
-        },
-        {
-          "id": "tile-12",
-          "suit": "wan",
-          "value": 4
-        },
-        {
-          "id": "tile-45",
-          "suit": "tong",
-          "value": 3
-        },
-        {
-          "id": "tile-90",
-          "suit": "tiao",
-          "value": 5
-        },
-        {
-          "id": "tile-92",
-          "suit": "tiao",
-          "value": 6
-        },
-        {
-          "id": "tile-123",
-          "suit": "wind",
-          "value": "north"
         },
         {
           "id": "tile-106",
@@ -137,9 +175,151 @@
           "value": 9
         },
         {
+          "id": "tile-107",
+          "suit": "tiao",
+          "value": 9
+        }
+      ],
+      "melds": [
+        {
+          "type": "peng",
+          "tiles": [
+            {
+              "id": "tile-94",
+              "suit": "tiao",
+              "value": 6
+            },
+            {
+              "id": "tile-92",
+              "suit": "tiao",
+              "value": 6
+            },
+            {
+              "id": "tile-95",
+              "suit": "tiao",
+              "value": 6
+            }
+          ],
+          "fromPlayerId": "53a3b735-818f-4fb2-8322-167d0c41b69f"
+        },
+        {
+          "type": "flower",
+          "tiles": [
+            {
+              "id": "tile-141",
+              "suit": "flower",
+              "value": "orchid"
+            }
+          ]
+        },
+        {
+          "type": "chi",
+          "tiles": [
+            {
+              "id": "tile-45",
+              "suit": "tong",
+              "value": 3
+            },
+            {
+              "id": "tile-50",
+              "suit": "tong",
+              "value": 4
+            },
+            {
+              "id": "tile-55",
+              "suit": "tong",
+              "value": 5
+            }
+          ],
+          "fromPlayerId": "53a3b735-818f-4fb2-8322-167d0c41b69f"
+        },
+        {
+          "type": "peng",
+          "tiles": [
+            {
+              "id": "tile-89",
+              "suit": "tiao",
+              "value": 5
+            },
+            {
+              "id": "tile-90",
+              "suit": "tiao",
+              "value": 5
+            },
+            {
+              "id": "tile-88",
+              "suit": "tiao",
+              "value": 5
+            }
+          ],
+          "fromPlayerId": "53a3b735-818f-4fb2-8322-167d0c41b69f"
+        },
+        {
+          "type": "flower",
+          "tiles": [
+            {
+              "id": "tile-136",
+              "suit": "flower",
+              "value": "spring"
+            }
+          ]
+        }
+      ],
+      "discards": [
+        {
+          "id": "tile-123",
+          "suit": "wind",
+          "value": "north"
+        },
+        {
+          "id": "tile-60",
+          "suit": "tong",
+          "value": 7
+        },
+        {
+          "id": "tile-56",
+          "suit": "tong",
+          "value": 6
+        },
+        {
+          "id": "tile-33",
+          "suit": "wan",
+          "value": 9
+        },
+        {
+          "id": "tile-26",
+          "suit": "wan",
+          "value": 7
+        },
+        {
+          "id": "tile-64",
+          "suit": "tong",
+          "value": 8
+        },
+        {
+          "id": "tile-12",
+          "suit": "wan",
+          "value": 4
+        },
+        {
+          "id": "tile-1",
+          "suit": "wan",
+          "value": 1
+        },
+        {
+          "id": "tile-109",
+          "suit": "wind",
+          "value": "east"
+        },
+        {
           "id": "tile-46",
           "suit": "tong",
           "value": 3
+        },
+        {
+          "id": "tile-127",
+          "suit": "dragon",
+          "value": "red"
         },
         {
           "id": "tile-101",
@@ -147,144 +327,22 @@
           "value": 8
         },
         {
-          "id": "tile-107",
+          "id": "tile-59",
+          "suit": "tong",
+          "value": 6
+        },
+        {
+          "id": "tile-99",
           "suit": "tiao",
-          "value": 9
+          "value": 7
         }
       ],
-      "melds": [],
-      "discards": [],
       "isReady": true,
-      "isOnline": true,
+      "isOnline": false,
       "flowers": []
     }
   ],
   "wall": [
-    {
-      "id": "tile-68",
-      "suit": "tong",
-      "value": 9
-    },
-    {
-      "id": "tile-95",
-      "suit": "tiao",
-      "value": 6
-    },
-    {
-      "id": "tile-120",
-      "suit": "wind",
-      "value": "north"
-    },
-    {
-      "id": "tile-56",
-      "suit": "tong",
-      "value": 6
-    },
-    {
-      "id": "tile-138",
-      "suit": "flower",
-      "value": "autumn"
-    },
-    {
-      "id": "tile-88",
-      "suit": "tiao",
-      "value": 5
-    },
-    {
-      "id": "tile-113",
-      "suit": "wind",
-      "value": "south"
-    },
-    {
-      "id": "tile-26",
-      "suit": "wan",
-      "value": 7
-    },
-    {
-      "id": "tile-0",
-      "suit": "wan",
-      "value": 1
-    },
-    {
-      "id": "tile-64",
-      "suit": "tong",
-      "value": 8
-    },
-    {
-      "id": "tile-125",
-      "suit": "dragon",
-      "value": "red"
-    },
-    {
-      "id": "tile-37",
-      "suit": "tong",
-      "value": 1
-    },
-    {
-      "id": "tile-1",
-      "suit": "wan",
-      "value": 1
-    },
-    {
-      "id": "tile-8",
-      "suit": "wan",
-      "value": 3
-    },
-    {
-      "id": "tile-141",
-      "suit": "flower",
-      "value": "orchid"
-    },
-    {
-      "id": "tile-55",
-      "suit": "tong",
-      "value": 5
-    },
-    {
-      "id": "tile-108",
-      "suit": "wind",
-      "value": "east"
-    },
-    {
-      "id": "tile-127",
-      "suit": "dragon",
-      "value": "red"
-    },
-    {
-      "id": "tile-128",
-      "suit": "dragon",
-      "value": "green"
-    },
-    {
-      "id": "tile-49",
-      "suit": "tong",
-      "value": 4
-    },
-    {
-      "id": "tile-59",
-      "suit": "tong",
-      "value": 6
-    },
-    {
-      "id": "tile-80",
-      "suit": "tiao",
-      "value": 3
-    },
-    {
-      "id": "tile-136",
-      "suit": "flower",
-      "value": "spring"
-    },
-    {
-      "id": "tile-69",
-      "suit": "tong",
-      "value": 9
-    },
-    {
-      "id": "tile-53",
-      "suit": "tong",
-      "value": 5
-    },
     {
       "id": "tile-81",
       "suit": "tiao",
@@ -729,36 +787,21 @@
       "id": "tile-43",
       "suit": "tong",
       "value": 2
-    },
-    {
-      "id": "tile-99",
-      "suit": "tiao",
-      "value": 7
-    },
-    {
-      "id": "tile-109",
-      "suit": "wind",
-      "value": "east"
-    },
-    {
-      "id": "tile-4",
-      "suit": "wan",
-      "value": 2
     }
   ],
-  "currentPlayerIndex": 1,
+  "currentPlayerIndex": 0,
   "turnPhase": "等待出牌",
   "roomPhase": "playing",
   "playerScores": {
-    "6a7bd2f0-02be-480d-bfa1-56044a32f423": 250,
-    "d64dd9f9-6c6b-4a06-b179-c7a0c3c9609a": 250
+    "53a3b735-818f-4fb2-8322-167d0c41b69f": 250,
+    "ea354d23-edfc-44ed-ae89-1209515f162c": 250
   },
   "zhuangIndex": 1,
   "gameNumber": 1,
   "huangzhuangCount": 0,
   "diceRolls": [
     {
-      "playerId": "6a7bd2f0-02be-480d-bfa1-56044a32f423",
+      "playerId": "53a3b735-818f-4fb2-8322-167d0c41b69f",
       "dice": [
         1,
         2
@@ -766,13 +809,12 @@
       "total": 3
     },
     {
-      "playerId": "d64dd9f9-6c6b-4a06-b179-c7a0c3c9609a",
+      "playerId": "ea354d23-edfc-44ed-ae89-1209515f162c",
       "dice": [
         3,
         5
       ],
       "total": 8
     }
-  ],
-  "lastDrawnTileId": "tile-107"
+  ]
 }

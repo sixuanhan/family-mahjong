@@ -77,5 +77,6 @@ export function handleFlower(
     wall,
     turnPhase: '等待出牌',
     lastDrawnTileId: drawnTile.id,
+    lastAction: { type: 'flower', playerId, actionId: `flower-${Date.now()}` },
   };
 }

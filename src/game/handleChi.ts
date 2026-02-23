@@ -113,5 +113,6 @@ export function handleChi(
     pendingResponses: undefined,
     lastDiscard: undefined,
     lastDrawnTileId: undefined,
+    lastAction: { type: 'chi', playerId, actionId: `chi-${Date.now()}` },
   };
 }
