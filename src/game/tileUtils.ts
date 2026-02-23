@@ -65,6 +65,23 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   };
 }
 
+// Mobile browsers require speech to be triggered from a user gesture first.
+// This unlocks the engine with a silent utterance on the first tap/click.
+let speechUnlocked = false;
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  const unlock = () => {
+    if (speechUnlocked) return;
+    speechUnlocked = true;
+    const silent = new SpeechSynthesisUtterance('');
+    silent.volume = 0;
+    speechSynthesis.speak(silent);
+    window.removeEventListener('click', unlock);
+    window.removeEventListener('touchstart', unlock);
+  };
+  window.addEventListener('click', unlock, { once: true });
+  window.addEventListener('touchstart', unlock, { once: true });
+}
+
 export function speakChinese(text: string): void {
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
