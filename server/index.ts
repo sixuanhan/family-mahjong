@@ -4,13 +4,10 @@ import { createServer } from 'http';
 import { createInitialGameState } from '../src/game/initGame.js';
 import { discardTile } from '../src/game/discard.js';
 import { drawTile } from '../src/game/draw.js';
-import { handlePeng } from '../src/game/handlePeng.js';
-import { handleChi } from '../src/game/handleChi.js';
-import { handleMingGang, handleAnGang, handleJiaGang } from '../src/game/handleGang.js';
-import { handleRon, handleZimo } from '../src/game/handleHu.js';
+import { handleAnGang, handleJiaGang } from '../src/game/handleGang.js';
+import { handleZimo } from '../src/game/handleHu.js';
 import { handleFlower } from '../src/game/handleFlower.js';
-import { passResponse } from '../src/game/passResponse.js';
-import { isResponseTimeout, autoPassAll, allResponsesDone, getWinningResponse, endResponsePhase } from '../src/game/resolveResponse.js';
+import { isResponseTimeout, autoPassAll, allResponsesDone, resolveResponses, submitResponse } from '../src/game/resolveResponse.js';
 import { initCompetition, rollDice, settleScores, voteNextGame, checkHuangzhuang, handleHuangzhuang, voteRestartGame, voteRestartCompetition } from '../src/game/competition.js';
 import type { GameState } from '../src/game/gameState.js';
 import { randomUUID } from 'crypto';
@@ -389,13 +386,13 @@ wss.on('connection', (ws, req) => {
               }
             }
             if (msg.action === 'peng') {
-              newGame = handlePeng(game, playerId);
+              newGame = submitResponse(game, playerId, 'peng');
             }
             if (msg.action === 'chi') {
-              newGame = handleChi(game, playerId, msg.tileIds);
+              newGame = submitResponse(game, playerId, 'chi', msg.tileIds);
             }
             if (msg.action === 'gang') {
-              newGame = handleMingGang(game, playerId);
+              newGame = submitResponse(game, playerId, 'gang');
             }
             if (msg.action === 'angang') {
               newGame = handleAnGang(game, playerId, msg.tileId);
@@ -407,13 +404,13 @@ wss.on('connection', (ws, req) => {
               newGame = handleFlower(game, playerId, msg.tileId);
             }
             if (msg.action === 'hu') {
-              newGame = handleRon(game, playerId);
+              newGame = submitResponse(game, playerId, 'hu');
             }
             if (msg.action === 'zimo') {
               newGame = handleZimo(game, playerId);
             }
             if (msg.action === 'pass') {
-              newGame = passResponse(game, playerId);
+              newGame = submitResponse(game, playerId, 'pass');
             }
 
             game = newGame;
@@ -594,23 +591,14 @@ setInterval(() => {
       currentGame = autoPassAll(currentGame);
     }
     
-    // 检查获胜响应
-    const winner = getWinningResponse(currentGame);
-    
-    if (winner && winner.action === 'chi' && currentGame.pendingResponses?.chiTileIds) {
-      // 执行chi
-      const chiTileIds = currentGame.pendingResponses.chiTileIds;
-      currentGame = handleChi(currentGame, winner.playerId, chiTileIds, true);
-    } else if (!winner) {
-      // 没有人响应，进入下家摸牌
-      currentGame = endResponsePhase(currentGame);
-      // 自动摸牌
-      if (currentGame.turnPhase === '等待摸牌' && currentGame.wall.length > 0) {
-        const nextPlayer = currentGame.players[currentGame.currentPlayerIndex];
-        currentGame = drawTile(currentGame, nextPlayer.id);
-      }
+    // 统一解析响应结果（按优先级：胡 > 碰/杠 > 吃）
+    currentGame = resolveResponses(currentGame);
+
+    // 自动摸牌：如果当前是"等待摸牌"阶段，自动帮当前玩家摸牌
+    if (currentGame.turnPhase === '等待摸牌' && currentGame.wall.length > 0) {
+      const nextPlayer = currentGame.players[currentGame.currentPlayerIndex];
+      currentGame = drawTile(currentGame, nextPlayer.id);
     }
-    // peng/gang/hu 应该已经在响应时立即执行了
     
     // 检查荒庄
     if (currentGame.roomPhase === 'playing' && checkHuangzhuang(currentGame)) {

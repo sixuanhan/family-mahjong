@@ -1,4 +1,4 @@
-import type { Tile } from '../types/tile';
+import type { Tile, Suit } from '../types/tile';
 import type { Meld } from '../types/player';
 import type { GameState } from './gameState';
 import { isSameTile } from './tileUtils';

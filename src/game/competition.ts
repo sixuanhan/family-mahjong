@@ -345,7 +345,7 @@ export function voteRestartCompetition(state: GameState, playerId: string): Game
       players: state.players.map(p => ({ ...p, isReady: false, hand: [], melds: [], flowers: [], discards: [] })),
       wall: [],
       currentPlayerIndex: 0,
-      turnPhase: 'draw' as const,
+      turnPhase: '等待摸牌' as const,
       playerScores: {},
       zhuangIndex: 0,
       gameNumber: 1,
