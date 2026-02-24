@@ -34,7 +34,7 @@ function App() {
     if (!img) return;
     if (actionFlashTimer.current) clearTimeout(actionFlashTimer.current);
     setActionFlash(img);
-    actionFlashTimer.current = setTimeout(() => setActionFlash(null), 1000);
+    actionFlashTimer.current = setTimeout(() => setActionFlash(null), 1800);
   }, []);
 
   // Speak tile name when a card is discarded
@@ -166,7 +166,7 @@ function App() {
               height: 'auto',
               zIndex: 200,
               pointerEvents: 'none',
-              animation: 'actionFlash 1s ease-out forwards',
+              animation: 'actionFlash 1.8s ease-out forwards',
             }}
           />
         )}
