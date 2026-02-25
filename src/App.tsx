@@ -240,6 +240,24 @@ function App() {
               {game.players[game.zhuangIndex]?.id === me.id && '🀄 '}{me.name}
             </div>
             {game.playerScores[me.id] !== undefined && <div>分数：{game.playerScores[me.id]}</div>}
+            {game.roomPhase === 'playing' && (
+              <button
+                onClick={() => setAutopass(!autopass)}
+                style={{
+                  background: autopass ? '#ff9800' : '#555',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: 4,
+                  padding: '4px 10px',
+                  cursor: 'pointer',
+                  fontSize: 13,
+                  opacity: 0.9,
+                  marginTop: 8,
+                }}
+              >
+                {autopass ? '✅ 自动过牌' : '自动过牌'}
+              </button>
+            )}
           </div>
 
           {/* 我的弃牌 */}
@@ -267,8 +285,6 @@ function App() {
             onNicknameChange={setNickname}
             sendAction={sendAction}
             onDiscard={handleDiscardTile}
-            autopass={autopass}
-            onAutopassChange={setAutopass}
           />
         </div>
       </div>

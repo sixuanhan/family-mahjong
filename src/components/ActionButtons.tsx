@@ -15,11 +15,9 @@ interface Props {
   onNicknameChange: (val: string) => void;
   sendAction: (action: string, payload?: Record<string, unknown>) => void;
   onDiscard: () => void;
-  autopass: boolean;
-  onAutopassChange: (val: boolean) => void;
 }
 
-export function ActionButtons({ game, me, playerId, selectedTileId, nickname, onNicknameChange, sendAction, onDiscard, autopass, onAutopassChange }: Props) {
+export function ActionButtons({ game, me, playerId, selectedTileId, nickname, onNicknameChange, sendAction, onDiscard }: Props) {
   return (
     <div style={{
       position: 'absolute',
@@ -30,23 +28,6 @@ export function ActionButtons({ game, me, playerId, selectedTileId, nickname, on
       gap: 6,
       alignItems: 'flex-end',
     }}>
-      {game.roomPhase === 'playing' && (
-        <button
-          onClick={() => onAutopassChange(!autopass)}
-          style={{
-            background: autopass ? '#ff9800' : '#555',
-            color: 'white',
-            border: 'none',
-            borderRadius: 4,
-            padding: '4px 10px',
-            cursor: 'pointer',
-            fontSize: 13,
-            opacity: 0.9,
-          }}
-        >
-          {autopass ? '✅ 自动过牌' : '自动过牌'}
-        </button>
-      )}
       {game.roomPhase === 'waiting_ready' && (
         <div style={{ textAlign: 'right' }}>
           {!me.isReady && (
