@@ -105,6 +105,19 @@ export function handleChi(
     }
   }
 
+  // 全球独钓限制：吃后如果4副露+手牌2张相同，不能荣和该牌
+  const nonFlowerMelds = player.melds.filter(m => m.type !== 'flower');
+  if (nonFlowerMelds.length === 4 && player.hand.length === 2) {
+    const [h1, h2] = player.hand;
+    if (h1.suit === h2.suit && h1.value === h2.value) {
+      const passedHuTiles = [...(player.passedHuTiles || [])];
+      if (!passedHuTiles.some(pt => pt.suit === h1.suit && pt.value === h1.value)) {
+        passedHuTiles.push({ suit: h1.suit, value: h1.value });
+      }
+      player.passedHuTiles = passedHuTiles;
+    }
+  }
+
   return {
     ...state,
     players,

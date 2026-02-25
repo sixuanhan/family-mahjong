@@ -192,9 +192,9 @@ export function submitResponse(
   // 记录响应
   const responses = { ...pending.responses, [playerId]: action };
 
-  // 过水规则：如果该玩家有胡的资格但选择了过，记录这张牌
+  // 过水规则：如果该玩家有胡的资格但选择了非胡动作（pass/peng/gang/chi），记录这张牌
   let players = state.players;
-  if (action === 'pass' && pending.huResponders?.includes(playerId)) {
+  if (action !== 'hu' && pending.huResponders?.includes(playerId)) {
     players = players.map(p => {
       if (p.id !== playerId) return p;
       const passedHuTiles = [...(p.passedHuTiles || [])];
@@ -219,13 +219,69 @@ export function submitResponse(
     },
   };
 
-  // 检查是否所有响应都已完成
-  if (!allResponsesDone(newState)) {
-    return newState;
+  // 检查是否所有响应都已完成，或者最高优先级已确定无法被翻转
+  if (allResponsesDone(newState) || canResolveEarly(newState)) {
+    return resolveResponses(newState);
   }
 
-  // 统一解析响应结果
-  return resolveResponses(newState);
+  return newState;
+}
+
+/**
+ * 检查是否可以提前解析响应（不必等待所有人响应）
+ * 当最高优先级动作已确定、且剩余pending玩家无法改变结果时可以提前解析
+ */
+export function canResolveEarly(state: GameState): boolean {
+  const pending = state.pendingResponses;
+  if (!pending) return false;
+
+  const currentBest = getWinningResponse(state);
+
+  // 没有任何有效响应，需要等所有人都回复（可能都pass）
+  if (!currentBest) return false;
+
+  // 找出所有还在pending的玩家
+  const pendingPlayerIds = Object.entries(pending.responses)
+    .filter(([, r]) => r === 'pending')
+    .map(([id]) => id);
+
+  if (pendingPlayerIds.length === 0) return true; // allResponsesDone would catch this, but just in case
+
+  if (currentBest.action === 'hu') {
+    // 胡是最高优先级。但如果有另一个hu-eligible且seat更近的玩家还pending，需要等
+    const fromIdx = state.players.findIndex(p => p.id === pending.fromPlayerId);
+    const bestIdx = state.players.findIndex(p => p.id === currentBest.playerId);
+    const bestDist = (bestIdx - fromIdx + state.players.length) % state.players.length;
+
+    const closerHuPending = pendingPlayerIds.some(pid => {
+      if (!pending.huResponders?.includes(pid)) return false;
+      const pidIdx = state.players.findIndex(p => p.id === pid);
+      const pidDist = (pidIdx - fromIdx + state.players.length) % state.players.length;
+      return pidDist < bestDist;
+    });
+
+    return !closerHuPending;
+  }
+
+  if (currentBest.action === 'peng' || currentBest.action === 'gang') {
+    // Peng/gang wins over chi. Only hu from a pending player could override.
+    const huStillPending = pendingPlayerIds.some(pid =>
+      pending.huResponders?.includes(pid)
+    );
+    return !huStillPending;
+  }
+
+  if (currentBest.action === 'chi') {
+    // Chi is lowest priority. Any pending hu/peng/gang responder could override.
+    const higherPriorityPending = pendingPlayerIds.some(pid =>
+      pending.huResponders?.includes(pid) ||
+      pending.responders.includes(pid) ||
+      pending.gangResponders?.includes(pid)
+    );
+    return !higherPriorityPending;
+  }
+
+  return false;
 }
 
 /**

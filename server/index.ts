@@ -7,7 +7,7 @@ import { drawTile } from '../src/game/draw.js';
 import { handleAnGang, handleJiaGang } from '../src/game/handleGang.js';
 import { handleZimo } from '../src/game/handleHu.js';
 import { handleFlower } from '../src/game/handleFlower.js';
-import { isResponseTimeout, autoPassAll, allResponsesDone, resolveResponses, submitResponse } from '../src/game/resolveResponse.js';
+import { isResponseTimeout, autoPassAll, allResponsesDone, resolveResponses, submitResponse, canResolveEarly } from '../src/game/resolveResponse.js';
 import { initCompetition, rollDice, settleScores, voteNextGame, checkHuangzhuang, handleHuangzhuang, voteRestartGame, voteRestartCompetition } from '../src/game/competition.js';
 import type { GameState } from '../src/game/gameState.js';
 import { randomUUID } from 'crypto';
@@ -582,8 +582,8 @@ setInterval(() => {
   const pending = game.pendingResponses;
   if (!pending) return;
 
-  // 检查是否所有响应已完成或超时
-  if (isResponseTimeout(game) || allResponsesDone(game)) {
+  // 检查是否所有响应已完成、超时、或可以提前解析
+  if (isResponseTimeout(game) || allResponsesDone(game) || canResolveEarly(game)) {
     let currentGame: GameState = game;
     
     // 先把所有pending标记为pass

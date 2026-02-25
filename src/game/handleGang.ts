@@ -61,6 +61,19 @@ export function handleMingGang(
   const drawnTile = wall.pop()!;
   player.hand.push(drawnTile);
 
+  // 全球独钓限制：杠后如果4副露+手牌2张相同，不能荣和该牌
+  const nonFlowerMelds = player.melds.filter(m => m.type !== 'flower');
+  if (nonFlowerMelds.length === 4 && player.hand.length === 2) {
+    const [t1, t2] = player.hand;
+    if (t1.suit === t2.suit && t1.value === t2.value) {
+      const passedHuTiles = [...(player.passedHuTiles || [])];
+      if (!passedHuTiles.some(pt => pt.suit === t1.suit && pt.value === t1.value)) {
+        passedHuTiles.push({ suit: t1.suit, value: t1.value });
+      }
+      player.passedHuTiles = passedHuTiles;
+    }
+  }
+
   return {
     ...state,
     players,
