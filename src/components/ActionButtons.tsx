@@ -12,12 +12,13 @@ interface Props {
   playerId: string;
   selectedTileId: string | null;
   nickname: string;
+  autopass: boolean;
   onNicknameChange: (val: string) => void;
   sendAction: (action: string, payload?: Record<string, unknown>) => void;
   onDiscard: () => void;
 }
 
-export function ActionButtons({ game, me, playerId, selectedTileId, nickname, onNicknameChange, sendAction, onDiscard }: Props) {
+export function ActionButtons({ game, me, playerId, selectedTileId, nickname, autopass, onNicknameChange, sendAction, onDiscard }: Props) {
   return (
     <div style={{
       position: 'absolute',

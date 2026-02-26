@@ -11,6 +11,8 @@ import { VoteButtons } from './components/VoteButtons';
 import { CenterInfo } from './components/CenterInfo';
 import { ActionButtons } from './components/ActionButtons';
 import { RestoreScreen } from './components/RestoreScreen';
+import { ThrowEmoji } from './components/ThrowEmoji';
+import type { EmojiType } from './components/ThrowEmoji';
 import { TileHoverProvider } from './hooks/useTileHover';
 import { speakTileName, speakChinese } from './game/tileUtils';
 import chiImg from './assets/chi.png';
@@ -18,7 +20,7 @@ import pengImg from './assets/peng.png';
 import gangImg from './assets/gang.png';
 
 function App() {
-  const { game, playerId, connectionStatus, sendAction, restoreInfo } = useGameConnection();
+  const { game, playerId, connectionStatus, sendAction, restoreInfo, throwEmojiEvents, clearThrowEvent } = useGameConnection();
   const [selectedTileId, setSelectedTileId] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
   const [autopass, setAutopass] = useState(false);
@@ -138,6 +140,26 @@ function App() {
   const topPlayer = total === 4 ? relativeOthers[1] : total === 2 ? relativeOthers[0] : null;
   const leftPlayer = total === 4 ? relativeOthers[2] : total === 3 ? relativeOthers[1] : null;
 
+  // Map incoming throw events to positions relative to the current player
+  const positionForPlayer = (pid: string): 'top' | 'left' | 'right' | null => {
+    if (topPlayer?.id === pid) return 'top';
+    if (leftPlayer?.id === pid) return 'left';
+    if (rightPlayer?.id === pid) return 'right';
+    return null;
+  };
+
+  const incomingThrows = throwEmojiEvents
+    .map(evt => {
+      const pos = positionForPlayer(evt.toPlayerId);
+      if (!pos) return null;
+      return { id: evt.id, emoji: evt.emoji, targetPosition: pos as 'top' | 'left' | 'right' };
+    })
+    .filter((x): x is NonNullable<typeof x> => x !== null);
+
+  const handleThrowEmoji = useCallback((emoji: EmojiType, targetPlayerId: string) => {
+    sendAction('throwEmoji', { toPlayerId: targetPlayerId, emoji });
+  }, [sendAction]);
+
   const isWaitingResponse = game.turnPhase === '等待响应' && game.pendingResponses;
   const highlightedTileId = isWaitingResponse && game.pendingResponses?.tile
     ? game.pendingResponses.tile.id : undefined;
@@ -152,10 +174,22 @@ function App() {
     <TileHoverProvider>
     <div style={{ minWidth: 1400, minHeight: 900, display: 'flex', justifyContent: 'center', alignItems: 'center', background: '#1a1a1a', padding: '40px' }}>
       <ConnectionStatus status={connectionStatus} />
-      <div style={{ position: 'relative', width: 1400, height: 900, background: '#2e7d32', borderRadius: 16, boxShadow: '0 0 20px rgba(0,0,0,0.5)', flexShrink: 0, ...(isMyTurnToDiscard ? { animation: 'activePlayerGlow 4s ease-in-out infinite' } : {}) }}>
+      <div data-game-board style={{ position: 'relative', width: 1400, height: 900, background: '#2e7d32', borderRadius: 16, boxShadow: '0 0 20px rgba(0,0,0,0.5)', flexShrink: 0, ...(isMyTurnToDiscard ? { animation: 'activePlayerGlow 4s ease-in-out infinite' } : {}) }}>
 
         <HuManual />
         <VoteButtons game={game} playerId={playerId} sendAction={sendAction} />
+
+        {/* ===== 扔表情 ===== */}
+        {game.roomPhase === 'playing' && (
+          <ThrowEmoji
+            onThrow={handleThrowEmoji}
+            topPlayerId={topPlayer?.id ?? null}
+            leftPlayerId={leftPlayer?.id ?? null}
+            rightPlayerId={rightPlayer?.id ?? null}
+            incomingThrows={incomingThrows}
+            onThrowComplete={clearThrowEvent}
+          />
+        )}
 
         {/* ===== 动作闪图 ===== */}
         {actionFlash && (
@@ -287,6 +321,7 @@ function App() {
             playerId={playerId}
             selectedTileId={selectedTileId}
             nickname={nickname}
+            autopass={autopass}
             onNicknameChange={setNickname}
             sendAction={sendAction}
             onDiscard={handleDiscardTile}

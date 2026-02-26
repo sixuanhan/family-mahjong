@@ -347,6 +347,22 @@ wss.on('connection', (ws, req) => {
             break;
         }
 
+        case 'throwEmoji': {
+            // Broadcast the throw to all clients
+            const throwMsg = JSON.stringify({
+              type: 'throwEmoji',
+              fromPlayerId: playerId,
+              toPlayerId: msg.toPlayerId,
+              emoji: msg.emoji,
+            });
+            for (const client of Array.from(clients.keys())) {
+              if (client.readyState === 1) {
+                client.send(throwMsg);
+              }
+            }
+            break;
+        }
+
         // ===== 游戏内动作（只在 playing 时允许） =====
         case 'draw':
         case 'discard':

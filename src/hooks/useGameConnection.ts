@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { GameState } from '../game/gameState';
+import type { EmojiType } from '../components/ThrowEmoji';
 
 export type ConnectionStatus = 'connecting' | 'connected' | 'disconnected' | 'reconnecting';
 
@@ -20,6 +21,7 @@ export function useGameConnection() {
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('connecting');
   const [restoreInfo, setRestoreInfo] = useState<RestoreInfo | null>(null);
+  const [throwEmojiEvents, setThrowEmojiEvents] = useState<{ id: string; fromPlayerId: string; toPlayerId: string; emoji: EmojiType }[]>([]);
 
   const connectWebSocket = useRef<(() => void) | undefined>(undefined);
 
@@ -97,6 +99,17 @@ export function useGameConnection() {
           return;
         }
 
+        if (msg.type === 'throwEmoji') {
+          const event = {
+            id: `throw-${Date.now()}-${Math.random()}`,
+            fromPlayerId: msg.fromPlayerId,
+            toPlayerId: msg.toPlayerId,
+            emoji: msg.emoji as EmojiType,
+          };
+          setThrowEmojiEvents(prev => [...prev, event]);
+          return;
+        }
+
         if (msg.type === 'error') {
           alert(`Error: ${msg.message}`);
         }
@@ -147,5 +160,9 @@ export function useGameConnection() {
     }
   }, []);
 
-  return { game, playerId, connectionStatus, sendAction, restoreInfo };
+  const clearThrowEvent = useCallback((id: string) => {
+    setThrowEmojiEvents(prev => prev.filter(e => e.id !== id));
+  }, []);
+
+  return { game, playerId, connectionStatus, sendAction, restoreInfo, throwEmojiEvents, clearThrowEvent };
 }
