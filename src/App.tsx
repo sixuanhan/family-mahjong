@@ -66,6 +66,11 @@ function App() {
     showActionFlash(flashType);
   }, [game?.lastAction]);
 
+  // Reset autopass when a new game starts
+  useEffect(() => {
+    setAutopass(false);
+  }, [game?.gameNumber]);
+
   // Autopass: automatically send 'pass' when in response phase, unless we can hu
   useEffect(() => {
     if (!autopass || !game || !playerId || game.turnPhase !== '等待响应' || !game.pendingResponses) return;

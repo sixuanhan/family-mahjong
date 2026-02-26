@@ -70,15 +70,15 @@ fi
 echo "🌐 Step 2: Starting Cloudflare Tunnel..."
 
 TUNNEL_LOG=$(mktemp)
-cloudflared tunnel --url http://localhost:3000 2>"$TUNNEL_LOG" &
+cloudflared tunnel --url http://localhost:3000 >"$TUNNEL_LOG" 2>&1 &
 TUNNEL_PID=$!
 
 echo "   Waiting for tunnel URL..."
 
 TUNNEL_URL=""
 for i in $(seq 1 60); do
-  # cloudflared prints the URL to stderr; look for it in the log
-  TUNNEL_URL=$(grep -oP 'https://[a-zA-Z0-9-]+\.trycloudflare\.com' "$TUNNEL_LOG" | head -1 || true)
+  # cloudflared prints the URL to stdout or stderr; grep with extended regex for portability
+  TUNNEL_URL=$(grep -oE 'https://[a-zA-Z0-9-]+\.trycloudflare\.com' "$TUNNEL_LOG" | head -1 || true)
   if [[ -n "$TUNNEL_URL" ]]; then
     break
   fi
