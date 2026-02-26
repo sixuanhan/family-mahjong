@@ -24,6 +24,7 @@ export function initCompetition(state: GameState): GameState {
     gameNumber: 1,
     huangzhuangCount: 0,
     diceRolls: [],
+    diceRound: 1,
     diceRollEligible: state.players.map(p => p.id), // 初始所有玩家都可以掷
   };
 }
@@ -43,8 +44,10 @@ export function rollDice(state: GameState, playerId: string): GameState {
     throw new Error('你没有资格掷骰子');
   }
 
+  const currentRound = state.diceRound || 1;
+
   // 检查本轮是否已经掷过
-  const currentRoundRolls = state.diceRolls?.filter(r => eligible.includes(r.playerId)) || [];
+  const currentRoundRolls = state.diceRolls?.filter(r => r.round === currentRound && eligible.includes(r.playerId)) || [];
   if (currentRoundRolls.some(r => r.playerId === playerId)) {
     throw new Error('你已经掷过骰子了');
   }
@@ -56,10 +59,11 @@ export function rollDice(state: GameState, playerId: string): GameState {
     playerId,
     dice: [dice1, dice2],
     total: dice1 + dice2,
+    round: currentRound,
   };
 
   const diceRolls = [...(state.diceRolls || []), roll];
-  const thisRoundRolls = diceRolls.filter(r => eligible.includes(r.playerId));
+  const thisRoundRolls = diceRolls.filter(r => r.round === currentRound && eligible.includes(r.playerId));
 
   // 检查本轮所有有资格的玩家是否都掷完了
   if (thisRoundRolls.length === eligible.length) {
@@ -80,10 +84,11 @@ export function rollDice(state: GameState, playerId: string): GameState {
         diceRollEligible: undefined,
       });
     } else {
-      // 平局，需要重掷
+      // 平局，需要重掷（进入下一轮）
       return {
         ...state,
         diceRolls,
+        diceRound: currentRound + 1,
         diceRollEligible: winners.map(w => w.playerId),
       };
     }

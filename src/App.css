@@ -59,33 +59,29 @@ img {
   transition: filter 0.15s ease;
 }
 
-/* Throw emoji animation */
-@keyframes throwFly {
+/* Throw emoji animations */
+@keyframes splatBurst {
   0% {
-    transform: translate(-50%, -50%) scale(0.5);
-    opacity: 0;
-  }
-  20% {
+    transform: scale(1);
     opacity: 1;
-    transform: translate(-50%, -50%) scale(1.2);
+  }
+  30% {
+    transform: scale(1.6);
+    opacity: 1;
   }
   100% {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
+    transform: scale(2);
+    opacity: 0;
   }
 }
 
-@keyframes throwSplat {
+@keyframes splatParticle {
   0% {
-    transform: translate(-50%, -50%) scale(1);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(0);
     opacity: 1;
   }
-  50% {
-    transform: translate(-50%, -50%) scale(1.8);
-    opacity: 0.8;
-  }
   100% {
-    transform: translate(-50%, -50%) scale(2);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateY(calc(-1 * var(--distance)));
     opacity: 0;
   }
 }

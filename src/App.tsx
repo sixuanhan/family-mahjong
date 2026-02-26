@@ -89,6 +89,10 @@ function App() {
     sendAction('pass');
   }, [autopass, game, playerId, sendAction]);
 
+  const handleThrowEmoji = useCallback((emoji: EmojiType, targetPlayerId: string) => {
+    sendAction('throwEmoji', { toPlayerId: targetPlayerId, emoji });
+  }, [sendAction]);
+
   // Show restore screen if restore is available
   if (restoreInfo && playerId) {
     return <RestoreScreen restoreInfo={restoreInfo} playerId={playerId} sendAction={sendAction} />;
@@ -141,7 +145,8 @@ function App() {
   const leftPlayer = total === 4 ? relativeOthers[2] : total === 3 ? relativeOthers[1] : null;
 
   // Map incoming throw events to positions relative to the current player
-  const positionForPlayer = (pid: string): 'top' | 'left' | 'right' | null => {
+  const positionForPlayer = (pid: string): 'top' | 'left' | 'right' | 'bottom' | null => {
+    if (pid === playerId) return 'bottom';
     if (topPlayer?.id === pid) return 'top';
     if (leftPlayer?.id === pid) return 'left';
     if (rightPlayer?.id === pid) return 'right';
@@ -149,16 +154,14 @@ function App() {
   };
 
   const incomingThrows = throwEmojiEvents
+    .filter(evt => evt.fromPlayerId !== playerId) // skip echo of own throws
     .map(evt => {
-      const pos = positionForPlayer(evt.toPlayerId);
-      if (!pos) return null;
-      return { id: evt.id, emoji: evt.emoji, targetPosition: pos as 'top' | 'left' | 'right' };
+      const fromPos = positionForPlayer(evt.fromPlayerId);
+      const toPos = positionForPlayer(evt.toPlayerId);
+      if (!fromPos || !toPos) return null;
+      return { id: evt.id, emoji: evt.emoji, fromPosition: fromPos, targetPosition: toPos };
     })
     .filter((x): x is NonNullable<typeof x> => x !== null);
-
-  const handleThrowEmoji = useCallback((emoji: EmojiType, targetPlayerId: string) => {
-    sendAction('throwEmoji', { toPlayerId: targetPlayerId, emoji });
-  }, [sendAction]);
 
   const isWaitingResponse = game.turnPhase === '等待响应' && game.pendingResponses;
   const highlightedTileId = isWaitingResponse && game.pendingResponses?.tile

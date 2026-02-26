@@ -82,9 +82,16 @@ if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
   window.addEventListener('touchstart', unlock, { once: true });
 }
 
-export function speakChinese(text: string): void {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
+// Speech queue: plays voices sequentially without cancelling or overlapping
+const speechQueue: string[] = [];
+let isSpeaking = false;
+
+function processQueue(): void {
+  if (isSpeaking || speechQueue.length === 0) return;
+  if (!('speechSynthesis' in window)) { speechQueue.length = 0; return; }
+
+  isSpeaking = true;
+  const text = speechQueue.shift()!;
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = 'zh-CN';
   const voice = getChineseVoice();
@@ -92,5 +99,19 @@ export function speakChinese(text: string): void {
   utterance.rate = 1.1;
   utterance.pitch = 1.5;
   utterance.volume = 0.8;
+  utterance.onend = () => { isSpeaking = false; processQueue(); };
+  utterance.onerror = () => { isSpeaking = false; processQueue(); };
   window.speechSynthesis.speak(utterance);
 }
+
+/** Speak text, queued after any currently playing speech. */
+export function speakChinese(text: string): void {
+  if (!('speechSynthesis' in window)) return;
+  speechQueue.push(text);
+  if (!window.speechSynthesis.speaking) {
+    isSpeaking = false;
+  }
+  processQueue();
+}
+
+export const queueSpeakChinese = speakChinese;

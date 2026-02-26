@@ -128,6 +128,7 @@ if (savedGame && savedGame.players.length > 0 &&
 }
 
 const clients = new Map<WebSocket, string>();
+const throwCooldowns = new Map<string, number>(); // playerId -> last throw timestamp
 
 wss.on('connection', (ws, req) => {
     // 尝试从 URL 参数获取重连 ID
@@ -348,9 +349,20 @@ wss.on('connection', (ws, req) => {
         }
 
         case 'throwEmoji': {
-            // Broadcast the throw to all clients
+            // Rate limit: 3 second cooldown per player
+            const now = Date.now();
+            const lastThrow = throwCooldowns.get(playerId) ?? 0;
+            if (now - lastThrow < 3000) {
+              ws.send(JSON.stringify({ type: 'error', message: '操作太快了，请稍等' }));
+              break;
+            }
+            throwCooldowns.set(playerId, now);
+
+            // Broadcast the throw to all clients (server generates unique ID)
+            const throwId = `throw-${Date.now()}-${Math.random().toString(36).slice(2)}`;
             const throwMsg = JSON.stringify({
               type: 'throwEmoji',
+              id: throwId,
               fromPlayerId: playerId,
               toPlayerId: msg.toPlayerId,
               emoji: msg.emoji,

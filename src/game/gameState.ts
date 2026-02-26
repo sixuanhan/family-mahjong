@@ -20,6 +20,7 @@ export interface DiceRoll {
   playerId: string;
   dice: [number, number]; // 两个骰子
   total: number;
+  round: number; // 第几轮掷骰（平局重掷时递增）
 }
 
 export interface WinnerInfo {
@@ -51,6 +52,7 @@ export interface GameState {
   gameNumber: number;                    // 当前第几局
   huangzhuangCount: number;              // 连续荒庄次数（用于翻倍）
   diceRolls?: DiceRoll[];               // 掷骰子结果
+  diceRound?: number;                   // 当前掷骰子轮次（平局重掷时递增）
   diceRollEligible?: string[];          // 当前轮有资格掷骰子的玩家ID（用于平局重掷）
   scoreChanges?: ScoreChange[];         // 本局分数变化
   competitionWinner?: string;           // 比赛获胜者ID

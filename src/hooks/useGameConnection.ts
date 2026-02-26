@@ -100,13 +100,17 @@ export function useGameConnection() {
         }
 
         if (msg.type === 'throwEmoji') {
-          const event = {
-            id: `throw-${Date.now()}-${Math.random()}`,
-            fromPlayerId: msg.fromPlayerId,
-            toPlayerId: msg.toPlayerId,
-            emoji: msg.emoji as EmojiType,
-          };
-          setThrowEmojiEvents(prev => [...prev, event]);
+          const serverThrowId = msg.id;
+          // Deduplicate: if we already have this server-generated ID, skip
+          setThrowEmojiEvents(prev => {
+            if (prev.some(e => e.id === serverThrowId)) return prev;
+            return [...prev, {
+              id: serverThrowId,
+              fromPlayerId: msg.fromPlayerId,
+              toPlayerId: msg.toPlayerId,
+              emoji: msg.emoji as EmojiType,
+            }];
+          });
           return;
         }
 
