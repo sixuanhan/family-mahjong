@@ -169,6 +169,10 @@ function App() {
   const highlightedPlayerId = isWaitingResponse && game.pendingResponses?.fromPlayerId
     ? game.pendingResponses.fromPlayerId : undefined;
 
+  // 胡牌时高亮最后那张赢牌
+  const winningTileId = game.winner?.winningTile.id;
+  const winnerId = game.winner?.playerId;
+
   const showFace = game.roomPhase === 'settling' || game.roomPhase === 'competition_end';
 
   const isMyTurnToDiscard = game.turnPhase === '等待出牌' && game.players[game.currentPlayerIndex]?.id === me.id;
@@ -224,7 +228,7 @@ function App() {
               </h4>
               <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
                 <MeldArea melds={topPlayer.melds} direction="top" />
-                <OtherPlayerHand tileCount={topPlayer.hand.length} direction="top" tileWidth={32} tileHeight={44} tiles={topPlayer.hand} showFace={showFace} />
+                <OtherPlayerHand tileCount={topPlayer.hand.length} direction="top" tileWidth={32} tileHeight={44} tiles={topPlayer.hand} showFace={showFace} highlightedTileId={winnerId === topPlayer.id ? winningTileId : undefined} />
               </div>
             </>
           )}
@@ -239,7 +243,7 @@ function App() {
                 {leftPlayer.name}
                 {game.playerScores[leftPlayer.id] !== undefined && ` (${game.playerScores[leftPlayer.id]}分)`}
               </h4>
-              <OtherPlayerHand tileCount={leftPlayer.hand.length} direction="left" tileWidth={32} tileHeight={44} tiles={leftPlayer.hand} showFace={showFace} />
+              <OtherPlayerHand tileCount={leftPlayer.hand.length} direction="left" tileWidth={32} tileHeight={44} tiles={leftPlayer.hand} showFace={showFace} highlightedTileId={winnerId === leftPlayer.id ? winningTileId : undefined} />
               <MeldArea melds={leftPlayer.melds} direction="left" />
             </div>
           )}
@@ -255,7 +259,7 @@ function App() {
                 {game.playerScores[rightPlayer.id] !== undefined && ` (${game.playerScores[rightPlayer.id]}分)`}
               </h4>
               <MeldArea melds={rightPlayer.melds} direction="right" />
-              <OtherPlayerHand tileCount={rightPlayer.hand.length} direction="right" tileWidth={32} tileHeight={44} tiles={rightPlayer.hand} showFace={showFace} />
+              <OtherPlayerHand tileCount={rightPlayer.hand.length} direction="right" tileWidth={32} tileHeight={44} tiles={rightPlayer.hand} showFace={showFace} highlightedTileId={winnerId === rightPlayer.id ? winningTileId : undefined} />
             </div>
           )}
         </div>
@@ -310,7 +314,7 @@ function App() {
           {/* 手牌+副露 */}
           <div style={{ width: 850, height: 110, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start', position: 'relative' }}>
             <div>
-              <Hand tiles={me.hand} onSelect={handleSelectTile} selectedTileId={selectedTileId} highlightedTileId={game.players[game.currentPlayerIndex].id === me.id ? game.lastDrawnTileId : undefined} />
+              <Hand tiles={me.hand} onSelect={handleSelectTile} selectedTileId={selectedTileId} highlightedTileId={winnerId === me.id ? winningTileId : (game.players[game.currentPlayerIndex].id === me.id ? game.lastDrawnTileId : undefined)} />
             </div>
             {me.melds.length > 0 && (
               <div style={{ marginLeft: 16 }}><MeldArea melds={me.melds} direction="bottom" /></div>

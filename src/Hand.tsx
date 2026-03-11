@@ -184,6 +184,7 @@ export function OtherPlayerHand({
   tileHeight = 56,
   tiles,
   showFace = false,
+  highlightedTileId,
 }: {
   tileCount: number;
   direction: TileDirection;
@@ -191,6 +192,7 @@ export function OtherPlayerHand({
   tileHeight?: number;
   tiles?: GameTile[];
   showFace?: boolean;
+  highlightedTileId?: string | null;
 }) {
   const { isSameTile, tileHoverProps } = useTileHover();
   // When showFace is true and tiles are available, render face-up TableTiles
@@ -220,9 +222,10 @@ export function OtherPlayerHand({
           const tileId = toRiichiId(tile);
           const RiichiComponent = getTileComponent(tileId);
           const flowerImage = tile.suit === 'flower' ? getFlowerImage(tileId) : undefined;
+          const isHighlighted = tile.id === highlightedTileId;
           return (
             <div key={tile.id} className={isSameTile(tile) ? 'tile-hover-highlight' : undefined} {...tileHoverProps(tile)}>
-              <TableTile width={tileWidth} height={tileHeight} radius={4} direction={direction}>
+              <TableTile width={tileWidth} height={tileHeight} radius={4} direction={direction} isHighlighted={isHighlighted}>
                 {flowerImage ? (
                   <img src={flowerImage} alt="flower" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 3 }} />
                 ) : RiichiComponent ? (
